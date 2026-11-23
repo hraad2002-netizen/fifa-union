@@ -1,0 +1,115 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+
+    // ---- الأدوار (تُقرأ من settings/roles) ----
+    function rolesPath() { return /databases/$(database)/documents/settings/roles; }
+    function permsPath() { return /databases/$(database)/documents/settings/perms; }
+    function isCaptain() { return exists(rolesPath()) && get(rolesPath()).data.get('captain', '') == me(); }
+    function isAssistant() { return exists(rolesPath()) && get(rolesPath()).data.get('assistants', []).hasAny([me()]); }
+    function isStaff() { return isCaptain() || isAssistant(); }
+    function roleName() { return isCaptain() ? 'captain' : (isAssistant() ? 'assistant' : 'player'); }
+
+    // الافتراضي لكل صلاحية (نفس جدول DEF بالتطبيق)
+    function defOf(r, k) {
+      return r == 'assistant'
+        ? !(k in ['season', 'rule'])
+        : (k in ['elVote', 'pvVote', 'cupReport', 'matchReport', 'post', 'file', 'caseVote']);
+    }
+    function perm(k) {
+      return isCaptain() || (
+        exists(permsPath())
+          ? get(permsPath()).data.get(roleName(), {}).get(k, defOf(roleName(), k)) == true
+          : defOf(roleName(), k)
+      );
+    }
+    function ownId(id) { return id.matches('.*_' + me()); }
+
+    // ---- اللاعبون ----
+    match /players/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && id == me()
+        && request.resource.data.keys().hasOnly(['name', 'login', 'photo', 'at'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 30
+        && (request.resource.data.photo == null || request.resource.data.photo.size() < 90000);
+      allow update: if signedIn() && id == me()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'photo'])
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 30
+        && (request.resource.data.photo == null || request.resource.data.photo.size() < 90000);
+      allow delete: if signedIn() && isCaptain();
+    }
+
+    // ---- الأدوار والصلاحيات ----
+    match /settings/roles {
+      allow read: if signedIn();
+      // أول مسجل يصير قائد (مرة وحدة فقط)
+      allow create: if signedIn() && request.resource.data.captain == me();
+      // القائد فقط يغيّر المساعدين، وما يكدر ينقل القيادة
+      allow update: if signedIn() && isCaptain() && request.resource.data.captain == resource.data.captain;
+    }
+    match /settings/perms {
+      allow read: if signedIn();
+      allow write: if signedIn() && isStaff();
+    }
+
+    // ---- القرعة ----
+    match /members/{id} { allow read: if signedIn(); allow write: if signedIn() && perm('draw'); }
+    match /draw/{id}    { allow read: if signedIn(); allow write: if signedIn() && perm('draw'); }
+
+    // ---- انتخابات الرئيس ----
+    match /election/{id} { allow read: if signedIn(); allow write: if signedIn() && perm('elManage'); }
+    match /terms/{id}    { allow read: if signedIn(); allow write: if signedIn() && perm('elManage'); }
+    match /eVotes/{id}   { allow read: if signedIn(); allow write: if signedIn() && id == me() && perm('elVote'); }
+
+    // ---- تصويت أفضل وأفشل لاعب ----
+    match /pvote/{id}  { allow read: if signedIn(); allow write: if signedIn() && perm('elManage'); }
+    match /pVotes/{id} { allow read: if signedIn(); allow write: if signedIn() && id == me() && perm('pvVote'); }
+
+    // ---- الكأس والدوري ----
+    match /cup/{id}       { allow read: if signedIn(); allow write: if signedIn() && perm('cupManage'); }
+    match /cupRes/{id}    { allow read: if signedIn(); allow write: if signedIn() && (perm('cupReport') || perm('cupManage')); }
+    match /champions/{id} { allow read: if signedIn(); allow write: if signedIn() && (perm('cupReport') || perm('cupManage')); }
+    match /dayRes/{id}    { allow read: if signedIn(); allow write: if signedIn() && (perm('matchReport') || perm('cupManage')); }
+    match /season/{id}    { allow read: if signedIn(); allow write: if signedIn() && perm('season'); }
+    match /seasons/{id}   { allow read: if signedIn(); allow write: if signedIn() && perm('season'); }
+
+    // ---- الأخبار ----
+    match /posts/{id} {
+      allow read: if signedIn();
+      // منشور لاعب
+      allow create: if signedIn() && (
+        (perm('post') && request.resource.data.uid == me() && request.resource.data.text.size() <= 280)
+        // منشور رسمي من التطبيق (نتائج، أحكام...)
+        || (request.resource.data.get('sys', false) == true && request.resource.data.keys().hasOnly(['sys', 'text', 'at']) && request.resource.data.text.size() <= 500)
+      );
+      allow delete: if signedIn() && (resource.data.get('uid', '') == me() || perm('moderate'));
+    }
+    match /likes/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == me() && ownId(id);
+      allow delete: if signedIn() && (resource.data.uid == me() || perm('moderate') || !exists(/databases/$(database)/documents/posts/$(resource.data.post)));
+    }
+    match /replies/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && perm('post') && request.resource.data.uid == me() && request.resource.data.text.size() <= 200;
+      allow delete: if signedIn() && (resource.data.uid == me() || perm('moderate') || !exists(/databases/$(database)/documents/posts/$(resource.data.post)));
+    }
+
+    // ---- قاضي الاتحاد ----
+    match /cases/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && perm('file') && request.resource.data.by == me() && request.resource.data.status == 'open';
+      allow update: if signedIn() && perm('rule');
+      allow delete: if signedIn() && (perm('rule') || isCaptain() || (resource.data.by == me() && resource.data.status == 'open'));
+    }
+    match /caseVotes/{id} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && perm('caseVote') && request.resource.data.uid == me() && ownId(id);
+      allow delete: if signedIn() && (resource.data.uid == me() || perm('rule') || isCaptain() || !exists(/databases/$(database)/documents/cases/$(resource.data.case)));
+    }
+  }
+}

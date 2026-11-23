@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="اتحاد الفيفا">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>اتحاد الفيفا</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap">
+<style>
+/* Layout: sticky crest header with sub-tabs, one column of cards and feed, fixed bottom nav of five groups. Dark-first luxury: obsidian black with antique gold. Four more skins swap the same tokens (set with data-skin). */
+:root{
+  color-scheme:dark;
+  --bg:#0b0b0d; --bg2:#111115; --surface:#17171c; --surface2:#202027; --line:#26262e; --line2:#383843;
+  --fg:#f3efe6; --muted:#9b978d; --accent:#d4af37; --accent2:#f2d67f; --accent-ink:#1a1405; --accent-soft:#2a2410;
+  --good:#4fbf8a; --bad:#e5644f; --glow:rgba(212,175,55,.13);
+  --cg1:#f3d77a; --cg2:#c9962b; --cgi:#2b1d00;
+  --cs1:#e3e8ec; --cs2:#a9b4bd; --csi:#1c252b;
+  --cb1:#e0aa7a; --cb2:#a8683a; --cbi:#2a1507;
+  --display:'Reem Kufi','IBM Plex Sans Arabic',system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic','Tajawal',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;
+}
+:root[data-skin="emerald"]{--bg:#06100c;--bg2:#0a1913;--surface:#0f2018;--surface2:#162b21;--line:#1f3a2d;--line2:#2c5340;--fg:#eaf4ee;--muted:#8fa89a;--accent:#3ddc97;--accent2:#8cf0c3;--accent-ink:#04150d;--accent-soft:#0f2a1e;--good:#3ddc97;--bad:#ef6b5a;--glow:rgba(61,220,151,.14)}
+:root[data-skin="royal"]{--bg:#070b17;--bg2:#0c1226;--surface:#111a35;--surface2:#18234a;--line:#222f5c;--line2:#32437f;--fg:#eaf0ff;--muted:#93a0c6;--accent:#5b8cff;--accent2:#9bb8ff;--accent-ink:#050b1f;--accent-soft:#141f45;--good:#4fd0a0;--bad:#ef6b7a;--glow:rgba(91,140,255,.16)}
+:root[data-skin="crimson"]{--bg:#0f0709;--bg2:#1a0c10;--surface:#231016;--surface2:#2e171e;--line:#40202a;--line2:#5a2e3b;--fg:#fbeef0;--muted:#b99aa0;--accent:#e5485e;--accent2:#ff8a9a;--accent-ink:#1e0508;--accent-soft:#3a1019;--good:#4fbf8a;--bad:#ff8a9a;--glow:rgba(229,72,94,.16)}
+:root[data-skin="pearl"]{color-scheme:light;--bg:#f6f3ec;--bg2:#ffffff;--surface:#ffffff;--surface2:#efeadd;--line:#e3ddcf;--line2:#cfc7b4;--fg:#1b1a17;--muted:#6d695f;--accent:#8a6a14;--accent2:#6f540c;--accent-ink:#ffffff;--accent-soft:#f3e8c4;--good:#1f8a5b;--bad:#c2432f;--glow:rgba(184,138,30,.14)}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+body{background-color:var(--bg);background-image:radial-gradient(120% 420px at 50% 0,var(--glow),transparent 75%);background-repeat:no-repeat;color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-block:0 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#app{max-width:640px;margin:0 auto}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+
+/* gate */
+.gate{min-height:88vh;display:flex;align-items:center;justify-content:center;padding-block:32px}
+.gate-in{width:100%;max-width:380px;text-align:center}
+.crest{width:34px;height:38px;color:var(--accent);flex:none}
+.crest.big{width:84px;height:94px}
+.brand{font-family:var(--display);font-weight:700;font-size:2.6rem;line-height:1.1;margin:14px 0 4px;color:var(--accent2)}
+.tag{margin:0 0 24px;color:var(--muted)}
+.reg{display:grid;gap:10px;text-align:start}
+.reg label{margin:6px 0 0}
+.reg-photo{justify-self:center;position:relative;border:0;background:none;padding:0}
+.reg-photo .av{border:2px solid var(--accent)}
+.reg-cam{display:block;margin-top:6px;font-size:.85rem;color:var(--accent2)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;background:var(--bg)}
+.top::after{content:"";display:block;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.45}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0 10px}
+.logo{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-s{font-family:var(--display);font-weight:700;font-size:1.3rem;line-height:1.1;color:var(--accent2)}
+.page-t{font-size:.82rem;color:var(--muted)}
+.me-btn{border:1.5px solid var(--line2);background:var(--surface);border-radius:50%;padding:0;width:44px;height:44px;display:grid;place-items:center;overflow:hidden;flex:none}
+.me-btn .av{width:100%;height:100%;margin:0;border:0}
+.presbar{display:flex;align-items:center;gap:8px;padding:5px 12px;margin:0 0 8px;border:1px solid var(--accent);border-radius:999px;background:var(--accent-soft);color:var(--accent2);font-size:.86rem;font-weight:600;width:fit-content;max-width:100%}
+.seg{display:flex;gap:8px;padding:2px 0 12px;overflow-x:auto}
+.seg button{flex:0 0 auto;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--muted);font-weight:500;white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent2)}
+.banner{background:var(--accent-soft);color:var(--accent2);border:1px solid var(--line2);border-radius:12px;padding:10px 14px;margin:12px 0;font-size:.9rem}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--bg2);border-top:1px solid var(--line);display:flex;justify-content:center;
+  padding:0 max(8px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(8px,env(safe-area-inset-left,0px))}
+.nav-in{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:640px}
+.nb{border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 2px;font-size:.72rem;font-weight:500;position:relative;min-height:56px}
+.nb svg,.act svg,.ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.nb[aria-current="page"]{color:var(--accent2)}
+.nb[aria-current="page"]::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+
+/* type */
+h2{font-family:var(--display);font-weight:700;font-size:1.35rem;margin:26px 0 10px}
+h3{font-size:1.05rem;font-weight:600;margin:0 0 4px}
+.panel>h2:first-child{margin-top:6px}
+.eyebrow{margin:0 0 2px;font-size:.78rem;letter-spacing:.06em;color:var(--accent);font-weight:600}
+.hint,.status,.empty{color:var(--muted);margin:0 0 10px;font-size:.92rem}
+.status{min-height:1.5em}
+.status b{color:var(--fg)}
+
+/* surfaces */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row.center{justify-content:center;align-items:center;margin:10px 0}
+.row.between{justify-content:space-between;align-items:center}
+input[type=text],input[type=number],textarea,select{width:100%;min-height:46px;padding:9px 12px;border:1px solid var(--line2);border-radius:12px;background:var(--bg2);font-size:16px}
+textarea{resize:vertical;line-height:1.5}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);outline:none}
+.row input[type=text]{flex:1;min-width:0;width:auto}
+label{display:block;font-weight:500;margin:10px 0 4px;font-size:.92rem}
+label.check{display:flex;gap:10px;align-items:flex-start;font-weight:400;margin:12px 0}
+label.check input{width:20px;height:20px;margin-top:3px;accent-color:var(--accent)}
+.btn{min-height:46px;padding:8px 22px;border-radius:12px;border:0;background:linear-gradient(180deg,var(--accent2),var(--accent));color:var(--accent-ink);font-weight:700}
+.btn.sm{min-height:40px;padding:4px 18px}
+.btn.block{width:100%}
+.btn.big{font-size:1.1rem;padding-inline:36px}
+.btn.ghost{background:transparent;color:var(--accent2);border:1px solid var(--line2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.admin-note{margin-top:22px}
+
+/* avatars */
+.av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;display:inline-block;vertical-align:middle;margin-inline-end:8px;border:1px solid var(--line2)}
+.av.ph{display:inline-grid;place-items:center;color:#fff;font-weight:700;font-size:.85rem;line-height:1}
+.av.md{width:44px;height:44px;margin:0;font-size:1.1rem}
+.av.lg{width:92px;height:92px;margin:0;font-size:2.2rem}
+.sysav{background:var(--accent-soft);color:var(--accent);display:inline-grid;place-items:center}
+.sysav svg{width:60%;height:60%}
+.pres-tag{display:inline-flex;align-items:center;gap:3px;margin-inline-start:6px;background:var(--accent-soft);color:var(--accent2);border:1px solid var(--accent);border-radius:999px;padding:0 8px;font-size:.7rem;font-weight:600;vertical-align:middle;white-space:nowrap}
+.crown{width:1.05em;height:1.05em;flex:none}
+.rb{display:inline-block;margin-inline-start:6px;border-radius:999px;padding:0 8px;font-size:.68rem;font-weight:600;vertical-align:middle;white-space:nowrap}
+.rb.cap{background:var(--accent);color:var(--accent-ink)}
+.rb.ast{border:1px solid var(--accent);color:var(--accent2)}
+
+/* players, wheel, matches */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;background:var(--surface);border:1px solid var(--line2);border-radius:999px;padding:4px;padding-inline-start:5px;min-width:0}
+.chip .x{border:0;background:transparent;width:32px;height:32px;border-radius:50%;font-size:1.25rem;line-height:1;color:var(--muted)}
+.chip .x:hover{background:var(--surface2)}
+.wheelBox{position:relative;width:min(100%,340px);margin:14px auto 6px}
+.wheelBox canvas{display:block;width:100%;aspect-ratio:1}
+.pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid var(--accent2);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.matches{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.match{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.match .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.match .p{flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.match .vs{color:var(--muted);font-size:.85rem;flex:none}
+.match.side .n{background:var(--surface2);color:var(--accent2)}
+
+/* votes */
+.vs-head{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-weight:600;font-size:1.1rem;margin-bottom:14px;text-align:center}
+.vs-head b{color:var(--muted);font-weight:500;font-size:.9rem}
+.cands{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cand{min-height:88px;border-radius:16px;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent2);font-family:var(--display);font-weight:700;font-size:1.4rem;padding:10px;overflow-wrap:anywhere}
+.cand.sm{min-height:48px;font-size:1rem;font-family:var(--body);font-weight:600;border-radius:12px}
+.cand:hover:not(:disabled),.cand.on{background:var(--accent);color:var(--accent-ink)}
+.cand:disabled{opacity:.45;cursor:not-allowed}
+.win{text-align:center;padding:10px 0 16px}
+.winner{margin:2px 0 0;font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1.25;color:var(--accent2);overflow-wrap:anywhere}
+.bar{margin-top:10px}
+.bl{display:flex;justify-content:space-between;gap:10px;font-weight:500;margin-bottom:4px}
+.track{height:10px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.fill{height:100%;background:var(--muted);border-radius:999px}
+.bar.top .fill{background:var(--accent)}
+.bar.top .bl{font-weight:700}
+.picks{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.pick{min-height:44px;padding:6px 14px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);font-weight:500}
+.pick.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pick.on .pres-tag{background:var(--accent-soft)}
+.pick:disabled{opacity:.5;cursor:not-allowed}
+
+/* cup */
+.rh{font-size:1rem;margin:18px 0 8px;color:var(--accent2)}
+.ms{display:grid;gap:10px}
+.cm{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.tr{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0}
+.tr.w .tn{font-weight:700;color:var(--accent2)}
+.tn{min-width:0;overflow-wrap:anywhere}
+.tbd{color:var(--muted)}
+.sc{font-weight:700;font-size:1.2rem;min-width:2ch;text-align:center}
+.cf{margin:6px 0 0;font-size:.88rem;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.cf .btn{min-height:36px;padding:2px 12px;font-size:.85rem}
+.resForm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.resForm label{margin:0;font-size:.85rem;min-width:0;overflow-wrap:anywhere}
+.resForm .full{grid-column:1/-1}
+.dm{flex-wrap:wrap}
+.dm .dmrow{display:flex;align-items:center;gap:10px;flex:1 1 100%;min-width:0}
+.dm .resForm{flex:1 1 100%;margin-top:4px}
+.dm .score{flex:none;font-weight:700;font-size:1.05rem;min-width:3.5ch;text-align:center;color:var(--accent2)}
+
+/* league */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:12px}
+.lt{width:100%;min-width:430px;border-collapse:collapse;font-size:.85rem}
+.lt th{font-size:.72rem;font-weight:500;color:var(--muted);padding:10px 3px;text-align:center;white-space:nowrap}
+.lt td{padding:8px 3px;text-align:center;border-top:1px solid var(--line)}
+.lt td.pl,.lt th.pl{text-align:start;position:sticky;inset-inline-start:0;background:var(--surface);width:108px;max-width:108px;white-space:nowrap;padding-inline:8px 4px}
+.lt td.pl{overflow:hidden;text-overflow:ellipsis}
+.lt .av{width:22px;height:22px;margin-inline-end:5px;font-size:.7rem}
+.lt .star{color:var(--accent);margin-inline-start:4px;font-size:.8rem}
+.lt td.pts{font-weight:700;color:var(--accent2)}
+.lt tr.first td.pl{color:var(--accent2);font-weight:700}
+details.card summary{cursor:pointer;font-weight:600}
+details.card .tbl-wrap{margin:12px 0 0}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.fcard{border-radius:16px 16px 30px 30px;padding:12px 10px 14px;text-align:center;color:var(--ci);background:linear-gradient(160deg,var(--c1),var(--c2));display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.fcard.gold{--c1:var(--cg1);--c2:var(--cg2);--ci:var(--cgi)}
+.fcard.silver{--c1:var(--cs1);--c2:var(--cs2);--ci:var(--csi)}
+.fcard.bronze{--c1:var(--cb1);--c2:var(--cb2);--ci:var(--cbi)}
+.fh{display:flex;flex-direction:column;align-items:center;line-height:1}
+.ovr{font-family:var(--display);font-weight:700;font-size:2.3rem}
+.ol{font-size:.7rem;font-weight:600}
+.fcard .av{border:3px solid var(--ci)}
+.fn{font-family:var(--display);font-weight:700;font-size:1.25rem;margin:0;overflow-wrap:anywhere}
+.fp{display:inline-flex;gap:4px;align-items:center;font-size:.75rem;font-weight:700}
+.fs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 4px;width:100%;border-top:1.5px solid var(--ci);padding-top:8px;margin-top:4px}
+.fs b{display:block;font-size:1.1rem}
+.fs span{font-size:.68rem;font-weight:500}
+
+/* news */
+.composer .cmp-row{display:flex;gap:12px;align-items:flex-start}
+.composer textarea{flex:1;min-width:0;width:auto;border:0;background:transparent;padding:8px 0;min-height:64px;resize:none}
+#cmpAv{flex:none}
+.composer textarea:focus{border:0}
+.cmp-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;margin-top:6px}
+.post{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.pav{flex:none}
+.pb{flex:1;min-width:0}
+.pt{display:flex;align-items:center;flex-wrap:wrap;gap:2px 0}
+.pn{font-weight:600}
+.pa{color:var(--muted);font-size:.82rem;margin-inline-start:6px}
+.ico{margin-inline-start:auto;border:0;background:transparent;color:var(--muted);width:34px;height:34px;display:grid;place-items:center;border-radius:50%}
+.ico svg{width:18px;height:18px}
+.ico:hover{color:var(--bad);background:var(--surface2)}
+.px{margin:4px 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pact{display:flex;gap:22px}
+.act{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--muted);min-height:36px;padding:0}
+.act:hover:not(:disabled){color:var(--accent2)}
+.act.on{color:var(--bad)}
+.act.on svg{fill:currentColor}
+.act svg{width:20px;height:20px}
+.thread{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.ms,.matches,.plist{grid-template-columns:minmax(0,1fr)}
+.rep{display:flex;gap:8px}
+.rep .av{margin:0;width:32px;height:32px}
+.rep>div{flex:1;min-width:0}
+.rep .px{margin:2px 0 0}
+.repForm{flex-wrap:nowrap}
+
+/* court */
+.judge-in{display:flex;gap:14px;align-items:center}
+.judge-n{margin:0 0 4px}
+.judge .av.ph{background:var(--accent-soft)!important;color:var(--accent)}
+.judge .av.ph svg{width:46px;height:46px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.filters{display:flex;gap:6px}
+.filters button{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--muted);font-size:.9rem}
+.filters button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent2);background:var(--accent-soft)}
+.case-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.state{border-radius:999px;padding:1px 10px;font-size:.75rem;font-weight:600;border:1px solid var(--line2);color:var(--muted)}
+.state.ok{border-color:var(--good);color:var(--good)}
+.case-b{margin:4px 0 6px;white-space:pre-wrap;overflow-wrap:anywhere}
+.meta{margin:0;color:var(--muted);font-size:.82rem}
+.verdict{margin-top:12px;border:1px solid var(--accent);background:var(--accent-soft);border-radius:14px;padding:12px}
+.vtxt{margin:0 0 4px;font-family:var(--display);font-weight:700;font-size:1.2rem;color:var(--accent2)}
+.cvote{margin-top:12px}
+.ruleForm{margin-top:12px;border-top:1px dashed var(--line2);padding-top:4px}
+
+/* admin / me */
+.plist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.plist li{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.plist .who{display:flex;align-items:center;min-width:0}
+.ptab{width:100%;border-collapse:collapse;margin-top:10px}
+.ptab th{font-size:.8rem;color:var(--muted);font-weight:500;text-align:center;padding:6px 4px}
+.ptab th:first-child,.ptab td:first-child{text-align:start}
+.ptab td{padding:9px 4px;border-top:1px solid var(--line);text-align:center}
+.ptab td:first-child{font-size:.92rem;padding-inline-end:8px}
+.sw{width:46px;height:28px;border-radius:999px;border:1px solid var(--line2);background:var(--surface2);position:relative;padding:0;flex:none}
+.sw i{position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:inset-inline-start .15s,background .15s}
+.sw[aria-checked="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.sw[aria-checked="true"] i{inset-inline-start:21px;background:var(--accent)}
+.sw:disabled{opacity:.45}
+.prof{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.prof .av.lg{border:2px solid var(--accent)}
+.prof-n{font-family:var(--display);font-weight:700;font-size:1.5rem;margin:0}
+.skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
+.skin{border:1.5px solid var(--line2);background:var(--bg2);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.85rem}
+.skin[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.dots{display:flex}
+.dots i{width:22px;height:22px;border-radius:50%;border:1px solid var(--line2)}
+.dots i+i{margin-inline-start:-6px}
+
+#toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(78px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;pointer-events:none;z-index:20;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s}
+#toast.show{opacity:1;transform:none}
+#toast span{background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:500;max-width:100%}
+@media (prefers-reduced-motion:reduce){#toast,.sw i{transition:none}}
+@media (max-width:380px){.cands{grid-template-columns:1fr}}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+.err{color:var(--bad);min-height:1.2em;margin:0}
+.btn.link{background:none;border:0;color:var(--accent2);text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div id="app" dir="rtl" lang="ar">
+  <section id="gate" class="gate">
+    <div class="gate-in">
+      <svg class="crest big" viewBox="0 0 64 72" aria-hidden="true"><path d="M32 3 8 11v22c0 17 10 30 24 36 14-6 24-19 24-36V11z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M32 12 14 18v15c0 12 7 22 18 27 11-5 18-15 18-27V18z" fill="currentColor" opacity=".12"/><circle cx="32" cy="34" r="11" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M32 27l6 4.5-2.3 7h-7.4l-2.3-7z" fill="currentColor"/></svg>
+      <h1 class="brand">اتحاد الفيفا</h1>
+      <p class="tag">قرعة، كأس، انتخابات وقضاء بين الأصدقاء</p>
+      <div id="gateBody"><p class="hint">جاري فتح الاتحاد...</p></div>
+    </div>
+  </section>
+
+  <div id="shell" hidden>
+    <header class="top">
+      <div class="top-in">
+        <div class="logo">
+          <svg class="crest" viewBox="0 0 64 72" aria-hidden="true"><path d="M32 3 8 11v22c0 17 10 30 24 36 14-6 24-19 24-36V11z" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="32" cy="34" r="11" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M32 27l6 4.5-2.3 7h-7.4l-2.3-7z" fill="currentColor"/></svg>
+          <div><div class="brand-s">اتحاد الفيفا</div><div id="pageT" class="page-t"></div></div>
+        </div>
+        <button id="meBtn" type="button" class="me-btn" data-tab="me" aria-label="ملفي"></button>
+      </div>
+      <div id="pres" class="presbar" hidden></div>
+      <div id="seg" class="seg" role="tablist" aria-label="أقسام" hidden></div>
+    </header>
+    <div id="banner" class="banner" hidden></div>
+
+    <main>
+      <section id="p-news" class="panel" hidden>
+        <div class="card composer">
+          <div class="cmp-row"><span id="cmpAv"></span><textarea id="postIn" rows="2" maxlength="280" placeholder="شنو الأخبار بالاتحاد؟" aria-label="منشور جديد"></textarea></div>
+          <div class="cmp-foot"><span id="cmpCount" class="muted num">280</span><button id="postBtn" type="button" class="btn sm">نشر</button></div>
+        </div>
+        <div id="feed"></div>
+      </section>
+
+      <section id="p-draw" class="panel" hidden>
+        <h2>اللاعبين <span id="mcount" class="num"></span></h2>
+        <form id="addForm" class="row" autocomplete="off">
+          <input type="text" id="nameIn" maxlength="30" placeholder="اسم لاعب بدون حساب" aria-label="اسم اللاعب">
+          <button class="btn" type="submit">إضافة</button>
+        </form>
+        <div id="members" class="chips"></div>
+        <h2>عجلة القرعة</h2>
+        <p id="drawStatus" class="status"></p>
+        <div class="wheelBox"><div class="pointer"></div><canvas id="wheel" aria-label="عجلة القرعة"></canvas></div>
+        <div class="row center">
+          <button id="spinBtn" type="button" class="btn big"></button>
+          <button id="resetBtn" type="button" class="btn ghost" hidden>مسح القرعة</button>
+        </div>
+        <h2>المباريات</h2>
+        <div id="matches"></div>
+        <div class="row center"><button id="copyBtn" type="button" class="btn ghost" hidden>نسخ الجدول</button></div>
+      </section>
+
+      <section id="p-cup" class="panel" hidden>
+        <h2>كأس الخميس</h2>
+        <p class="hint">خروج مغلوب: اللي يخسر يطلع واللي يفوز يكمل لين النهائي. اللاعب يسجل نتيجة مباراته بنفسه.</p>
+        <div id="cupBody"></div>
+      </section>
+
+      <section id="p-league" class="panel" hidden>
+        <h2>دوري الموسم</h2>
+        <div id="leagueBody"></div>
+      </section>
+
+      <section id="p-election" class="panel" hidden>
+        <h2>انتخابات رئيس الاتحاد</h2>
+        <div id="elBody"></div>
+        <form id="cfgForm" class="card admin-note" hidden autocomplete="off">
+          <h3>إعداد جولة جديدة</h3>
+          <p class="hint">تبدأ الجولة وتنفتح للتصويت يوم الخميس القادم.</p>
+          <label for="c1">المرشح الأول</label>
+          <input type="text" id="c1" list="memList" maxlength="30">
+          <label for="c2">المرشح الثاني</label>
+          <input type="text" id="c2" list="memList" maxlength="30">
+          <label class="check" for="force"><input type="checkbox" id="force"><span>افتح التصويت الحين حتى لو مو خميس (للتجربة)</span></label>
+          <button class="btn" type="submit">حفظ وبدء الجولة</button>
+        </form>
+        <datalist id="memList"></datalist>
+      </section>
+
+      <section id="p-vote" class="panel" hidden>
+        <h2>أفضل وأفشل لاعب</h2>
+        <p class="hint">اضغط على اللاعب اللي تختاره بكل فئة. تكدر تغيّر اختيارك.</p>
+        <div id="pvBody"></div>
+        <div id="pvAdmin" class="admin-note" hidden>
+          <p class="hint">يبدأ تصويت جديد ويصفّر النتائج الحالية.</p>
+          <button id="pvReset" type="button" class="btn ghost">تصويت جديد من الصفر</button>
+        </div>
+      </section>
+
+      <section id="p-court" class="panel" hidden>
+        <div id="judgeCard" class="card judge"></div>
+        <div class="row between" style="margin-bottom:12px">
+          <div id="filters" class="filters"></div>
+          <button id="newCaseBtn" type="button" class="btn sm">تقديم شكوى</button>
+        </div>
+        <form id="caseForm" class="card" hidden autocomplete="off">
+          <h3>شكوى جديدة</h3>
+          <label for="cDef">المشتكى عليه</label>
+          <select id="cDef"></select>
+          <label for="cTitle">عنوان الشكوى</label>
+          <input type="text" id="cTitle" maxlength="80" placeholder="مثال: فصل النت وانا فايز">
+          <label for="cBody">التفاصيل</label>
+          <textarea id="cBody" rows="4" maxlength="500" placeholder="اشرح شنو صار"></textarea>
+          <div class="row" style="margin-top:12px"><button class="btn" type="submit">رفع الشكوى</button><button class="btn ghost" type="button" data-act="cancelcase">إلغاء</button></div>
+        </form>
+        <div id="cases"></div>
+      </section>
+
+      <section id="p-cards" class="panel" hidden>
+        <h2>بطاقات الاتحاد</h2>
+        <p class="hint">الأرقام تنحسب من نتائج الكأس والانتخابات والتصويت.</p>
+        <div id="cardsBody"></div>
+      </section>
+
+      <section id="p-admin" class="panel" hidden>
+        <h2>الإدارة</h2>
+        <div id="adminBody"></div>
+      </section>
+
+      <section id="p-me" class="panel" hidden>
+        <h2>ملفي</h2>
+        <div id="meBody"></div>
+        <input type="file" id="photoIn" accept="image/*" hidden>
+      </section>
+    </main>
+
+    <nav class="nav" aria-label="التنقل الرئيسي"><div id="navIn" class="nav-in"></div></nav>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var TZ='Asia/Baghdad',LOC='ar-IQ-u-nu-latn';
+var COLORS=['#9a7410','#7a1f2b','#1f4e79','#2e6b4f','#5b3a8c','#9a4a1a','#256d7b','#5f6b1f'];
+var CATS=[
+  {k:'best',t:'أفضل لاعب',d:'اللي يستاهل اللقب'},
+  {k:'worst',t:'أفشل لاعب',d:'اللي خيّب ظننا'},
+  {k:'shock',t:'صدمك بمستواه',d:'لاعب كان يستاهل أفضل لاعب وصدمك بمستواه'}
+];
+var SKINS=[['noir','أسود ملكي','#0b0b0d','#d4af37'],['emerald','زمرد','#06100c','#3ddc97'],['royal','أزرق ملكي','#070b17','#5b8cff'],['crimson','عنابي','#0f0709','#e5485e'],['pearl','لؤلؤي','#f6f3ec','#8a6a14']];
+var FEATS=[['draw','القرعة (العجلة والأسماء)'],['elVote','التصويت بانتخابات الرئيس'],['elManage','إعداد الانتخابات وتصفير التصويت'],['pvVote','تصويت أفضل وأفشل لاعب'],['cupManage','إدارة الكأس'],['cupReport','تسجيل نتائج الكأس'],['matchReport','تسجيل نتائج مباريات القرعة'],['season','إدارة الموسم (بدء وإنهاء)'],['post','النشر والرد بالأخبار'],['moderate','حذف منشورات الآخرين'],['file','تقديم شكاوي'],['caseVote','التصويت على أحكام القاضي'],['rule','إصدار أحكام القاضي']];
+var DEF={
+  player:{draw:0,elVote:1,elManage:0,pvVote:1,cupManage:0,cupReport:1,matchReport:1,season:0,post:1,moderate:0,file:1,caseVote:1,rule:0},
+  assistant:{draw:1,elVote:1,elManage:1,pvVote:1,cupManage:1,cupReport:1,matchReport:1,season:0,post:1,moderate:1,file:1,caseVote:1,rule:0}
+};
+function ic(p){return '<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>'}
+var ICON={
+  news:ic('<path d="M5 4h11a1 1 0 011 1v14a1 1 0 01-1 1H6a2 2 0 01-2-2V5a1 1 0 011-1z"/><path d="M17 8h2a1 1 0 011 1v8a2 2 0 01-2 2"/><path d="M8 8h6M8 12h6M8 16h4"/>'),
+  ball:ic('<circle cx="12" cy="12" r="9"/><path d="M12 8l3.5 2.5-1.3 4h-4.4l-1.3-4z"/><path d="M12 3v5M20 9.5l-4.5 1M17.5 19l-3.3-4.5M6.5 19l3.3-4.5M4 9.5l4.5 1"/>'),
+  vote:ic('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>'),
+  gavel:ic('<path d="M14 4l6 6-3 3-6-6z"/><path d="M11 7l-7 7 3 3 7-7"/><path d="M4 21h10"/>'),
+  menu:ic('<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>'),
+  heart:ic('<path d="M12 20s-7-4.6-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.4-7 10-7 10z"/>'),
+  reply:ic('<path d="M4 6h16v10H9l-5 4z"/>'),
+  trash:ic('<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>')
+};
+var CROWN='<svg class="crown" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8l5 4.5L12 4l5 8.5L22 8l-2 11H4z" fill="currentColor"/></svg>';
+var CREST='<svg viewBox="0 0 64 72" aria-hidden="true"><path d="M32 3 8 11v22c0 17 10 30 24 36 14-6 24-19 24-36V11z" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="34" r="11" fill="none" stroke="currentColor" stroke-width="3"/><path d="M32 27l6 4.5-2.3 7h-7.4l-2.3-7z" fill="currentColor"/></svg>';
+var GROUPS=[
+  {k:'news',t:'الأخبار',i:'news',leaves:['news']},
+  {k:'play',t:'المباريات',i:'ball',leaves:['draw','cup','league']},
+  {k:'ballot',t:'التصويت',i:'vote',leaves:['election','vote']},
+  {k:'court',t:'القاضي',i:'gavel',leaves:['court']},
+  {k:'more',t:'المزيد',i:'menu',leaves:['me','cards','admin']}
+];
+var LEAF_T={news:'أخبار الاتحاد',draw:'القرعة',cup:'كأس الخميس',election:'انتخابات الرئيس',vote:'أفضل وأفشل لاعب',court:'قاضي الاتحاد',cards:'بطاقات الاتحاد',league:'دوري الموسم',admin:'الإدارة',me:'ملفي'};
+var LEAF_S={league:'الدوري',draw:'القرعة',cup:'كأس الخميس',election:'انتخابات الرئيس',vote:'تصويت اللاعبين',me:'ملفي',cards:'البطاقات',admin:'الإدارة'};
+
+var S={members:[],manual:[],players:[],photoBy:{},roles:{},perms:{},draw:null,config:null,president:null,eVotes:[],pvCfg:null,pVotes:[],cup:null,cupRes:[],champs:[],terms:[],posts:[],likes:[],replies:[],cases:[],caseVotes:[],season:null,seasons:[],dayRes:[]};
+var db=null,auth=null,uid=null,canWrite=true,signing=false,configMissing=false,authMode='login',booted=false,plLoaded=false,rolesLoaded=false,claimed=false;
+var meDefault='',regPhoto='',editingName=false,spinning=false,rot=0,tab='news',loaded=false,sticky='',gateState='',skin='noir';
+var lastLeaf={},openThreads={},caseFilter='open',showCaseForm=false,cupSel={};
+var chain=Promise.resolve();
+var RENDER={};
+
+try{document.documentElement.dir='rtl';document.documentElement.lang='ar'}catch(e){}
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var tt;
+function toast(m){var t=$('#toast');t.innerHTML='<span>'+esc(m)+'</span>';t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},3400)}
+function banner(m){var b=$('#banner');if(m){b.textContent=m;b.hidden=false}else{b.hidden=true}}
+function run(fn){
+  if(!db||!uid){toast('سجّل دخولك أول.');return Promise.resolve()}
+  chain=chain.then(fn).catch(onErr);return chain;
+}
+function onErr(e){
+  console.warn(e);var c=e&&e.code;
+  toast((c==='invalid_argument'||c==='permission-denied')?'ما عندك صلاحية لهالعملية. القائد يحدد الصلاحيات.':(c==='quota_exceeded'||c==='resource-exhausted')?'انتهت الحصة اليومية المجانية للقاعدة، جرب باجر.':'صار خطأ، جرب مرة ثانية.');
+}
+function armed(btn,label,fn){
+  if(btn.dataset.armed){clearTimeout(+btn.dataset.armed);btn.innerHTML=btn.dataset.html;delete btn.dataset.armed;fn();return}
+  btn.dataset.html=btn.innerHTML;btn.textContent=label;
+  btn.dataset.armed=setTimeout(function(){btn.innerHTML=btn.dataset.html;delete btn.dataset.armed},4000);
+}
+function capture(el){
+  var o={},f=document.activeElement;
+  el.querySelectorAll('input,select,textarea').forEach(function(x){if(x.id)o[x.id]=x.value});
+  return {vals:o,focus:(f&&el.contains(f))?f.id:null};
+}
+function restore(c){
+  Object.keys(c.vals).forEach(function(id){var x=document.getElementById(id);if(x&&x.value!==c.vals[id])x.value=c.vals[id]});
+  if(c.focus){var f=document.getElementById(c.focus);if(f)f.focus()}
+}
+function uidNew(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+
+/* dates (Baghdad) */
+function todayKey(){return new Date().toLocaleDateString('en-CA',{timeZone:TZ})}
+function dKey(k){return new Date(k+'T00:00:00Z')}
+function addDays(k,n){var d=dKey(k);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+function nextThu(k){return addDays(k,(4-dKey(k).getUTCDay()+7)%7)}
+function daysBetween(a,b){return Math.round((dKey(b)-dKey(a))/864e5)}
+function fmtDate(k){try{return new Date(k+'T12:00:00Z').toLocaleDateString(LOC,{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'})}catch(e){return k}}
+function relTime(at){
+  var m=Math.floor(Math.max(0,Date.now()-(at||0))/6e4);
+  if(m<1)return 'الآن';if(m<60)return 'قبل '+m+' د';
+  var h=Math.floor(m/60);if(h<24)return 'قبل '+h+' س';
+  try{return new Date(at).toLocaleDateString(LOC,{day:'numeric',month:'long',timeZone:TZ})}catch(e){return ''}
+}
+
+/* ---------- skin ---------- */
+function applySkin(k){
+  if(!SKINS.some(function(s){return s[0]===k}))k='noir';
+  var r=document.documentElement;
+  if(k==='noir')r.removeAttribute('data-skin');else r.setAttribute('data-skin',k);
+  skin=k;
+}
+try{applySkin(localStorage.getItem('fifaSkin')||'noir')}catch(e){applySkin('noir')}
+
+/* ---------- people & roles ---------- */
+function colorOf(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return COLORS[h%COLORS.length]}
+function avatar(n,cls){
+  var p=S.photoBy&&S.photoBy[n],c='av'+(cls?' '+cls:'');
+  if(p)return '<img class="'+c+'" src="'+esc(p)+'" alt="">';
+  return '<span class="'+c+' ph" style="background:'+colorOf(n)+'" aria-hidden="true">'+esc(Array.from(n)[0]||'?')+'</span>';
+}
+function derive(){
+  var seen={},out=[];
+  S.manual.concat(S.players.map(function(p){return p.name})).forEach(function(n){if(n&&!seen[n]){seen[n]=1;out.push(n)}});
+  S.members=out;
+  S.photoBy={};S.players.forEach(function(p){if(p.photo)S.photoBy[p.name]=p.photo});
+}
+function playerById(id){for(var i=0;i<S.players.length;i++)if(S.players[i].id===id)return S.players[i];return null}
+function myPlayer(){return uid?playerById(uid):null}
+function registered(){return !!myPlayer()}
+function roleOfId(id){
+  if(!id)return 'player';
+  if(S.roles.captain===id)return 'captain';
+  if((S.roles.assistants||[]).indexOf(id)>=0)return 'assistant';
+  return 'player';
+}
+function myRole(){return roleOfId(uid)}
+function effPerm(r,k){var o=S.perms[r];if(o&&o[k]!==undefined)return !!o[k];return !!DEF[r][k]}
+function can(k){
+  if(!uid||!registered()||!canWrite)return false;
+  var r=myRole();if(r==='captain')return true;
+  return effPerm(r,k);
+}
+function canManage(){return !!uid&&registered()&&myRole()!=='player'}
+function whyNot(k){
+  if(!uid)return 'سجّل دخول حتى تشارك.';
+  if(!registered())return 'سجّل اسمك أول.';
+  if(!canWrite)return 'حسابك مشاهدة فقط. اطلب من القائد يخليك مشارك.';
+  if(!can(k))return 'هالخيار مو مفتوح لك. القائد والمساعد يحددون الصلاحيات.';
+  return '';
+}
+function roleBadge(id){var r=roleOfId(id);return r==='captain'?'<span class="rb cap">القائد</span>':r==='assistant'?'<span class="rb ast">مساعد</span>':''}
+function maybeClaim(){
+  if(claimed||!db||!uid||!rolesLoaded||!registered())return;
+  if(S.roles&&S.roles.captain){claimed=true;return}
+  claimed=true;
+  run(function(){return db.doc('settings/roles').set({captain:uid,assistants:[]})}).then(function(){toast('انت القائد الأول للاتحاد')});
+}
+
+/* ---------- election state ---------- */
+function elState(){
+  var c=S.config;if(!c)return {k:'none'};
+  var t=todayKey(),open=!!c.forceOpen||t===c.round,fin=!open&&t>c.round;
+  return {k:open?'open':(fin?'done':'wait'),c:c};
+}
+function tally(rid){
+  var r=[0,0];
+  S.eVotes.forEach(function(v){var p=v.picks&&v.picks[rid];if(p===0||p===1)r[p]++});
+  return r;
+}
+function winnerOf(c){var t=tally(c.rid);return t[0]>t[1]?c.c1:t[1]>t[0]?c.c2:null}
+function curPresident(){
+  var st=elState();
+  if(st.k==='done'){var w=winnerOf(st.c);if(w)return w}
+  return S.president&&S.president.name||null;
+}
+function isPres(n){var p=curPresident();return !!p&&p===n}
+function nameTag(n){return avatar(n)+esc(n)+(isPres(n)?'<span class="pres-tag">'+CROWN+'رئيس الاتحاد</span>':'')}
+function pvRound(){return (S.pvCfg&&S.pvCfg.round)||0}
+function myPV(){
+  var r=pvRound();
+  for(var i=0;i<S.pVotes.length;i++){var v=S.pVotes[i];if(v.id===uid&&(v.r||0)===r)return v}
+  return null;
+}
+function pvCounts(cat){
+  var r=pvRound(),m={};
+  S.pVotes.forEach(function(v){if((v.r||0)===r&&v[cat])m[v[cat]]=(m[v[cat]]||0)+1});
+  return m;
+}
+function voterNames(rid){
+  return S.eVotes.filter(function(v){return v.picks&&(v.picks[rid]===0||v.picks[rid]===1)}).map(function(v){
+    var p=playerById(v.id);return p?p.name:'شخص بدون اسم';
+  });
+}
+function barRow(label,n,total,top){
+  var p=total?Math.round(n*100/total):0;
+  return '<div class="bar'+(top?' top':'')+'"><div class="bl"><span>'+label+'</span><span class="num">'+n+'</span></div><div class="track"><div class="fill" style="width:'+p+'%"></div></div></div>';
+}
+
+/* ---------- stats & cup model ---------- */
+function stats(){
+  var m={};
+  function g(n){return m[n]||(m[n]={p:0,w:0,gf:0,ga:0,t:0,pr:0,best:0})}
+  S.cupRes.forEach(function(r){
+    if(!r.a||!r.b)return;var A=g(r.a),B=g(r.b);
+    A.p++;B.p++;A.gf+=r.sa;A.ga+=r.sb;B.gf+=r.sb;B.ga+=r.sa;
+    if(r.w===r.a)A.w++;else B.w++;
+  });
+  S.dayRes.forEach(function(r){
+    if(!r.a||!r.b)return;var A=g(r.a),B=g(r.b);
+    A.p++;B.p++;A.gf+=r.sa;A.ga+=r.sb;B.gf+=r.sb;B.ga+=r.sa;
+    if(r.sa>r.sb)A.w++;else if(r.sb>r.sa)B.w++;
+  });
+  S.champs.forEach(function(c){g(c.name).t++});
+  var seen={};S.terms.forEach(function(t){seen[t.id]=1;g(t.name).pr++});
+  var st=elState();
+  if(st.k==='done'){var w=winnerOf(st.c);if(w&&!seen[st.c.rid])g(w).pr++}
+  var bc=pvCounts('best');Object.keys(bc).forEach(function(n){g(n).best=bc[n]});
+  return g;
+}
+function ovr(s){return Math.max(45,Math.min(99,50+s.w*3+s.t*8+s.pr*5+Math.max(0,s.gf-s.ga)))}
+function cupModel(){
+  var c=S.cup;if(!c||!c.seeds||c.seeds.length<2)return null;
+  var N=c.seeds.length,R=Math.round(Math.log(N)/Math.LN2),res={},rounds=[];
+  S.cupRes.forEach(function(r){if(r.cup===c.id)res[r.r+'_'+r.i]=r});
+  for(var r=0;r<R;r++){
+    rounds[r]=[];
+    for(var i=0;i<N/Math.pow(2,r+1);i++){
+      var a=r===0?c.seeds[2*i]:rounds[r-1][2*i].w,b=r===0?c.seeds[2*i+1]:rounds[r-1][2*i+1].w;
+      var rs=res[r+'_'+i],ok=!!(rs&&rs.a===a&&rs.b===b),w=null;
+      if(ok)w=rs.w;else if(r===0&&a&&!b)w=a;else if(r===0&&b&&!a)w=b;
+      rounds[r].push({r:r,i:i,a:a||null,b:b||null,res:ok?rs:null,w:w,bye:r===0&&(!a||!b)});
+    }
+  }
+  return {id:c.id,n:c.n||1,rounds:rounds,champion:rounds[R-1][0].w};
+}
+function roundName(r,R){var e=R-1-r;return e===0?'النهائي':e===1?'نصف النهائي':e===2?'ربع النهائي':e===3?'دور الـ16':'الجولة '+(r+1)}
+
+/* ---------- league ---------- */
+function activeSeason(){return S.season&&S.season.id&&!S.season.endedAt?S.season:null}
+function leagueMatches(from,to){
+  var out=[];
+  S.dayRes.forEach(function(r){if(r.a&&r.b&&r.at>=from&&r.at<=to)out.push({a:r.a,b:r.b,sa:r.sa,sb:r.sb,at:r.at,k:'يومي'})});
+  S.cupRes.forEach(function(r){if(r.a&&r.b&&r.at>=from&&r.at<=to)out.push({a:r.a,b:r.b,sa:r.sa,sb:r.sb,at:r.at,k:'كأس'})});
+  return out.sort(function(x,y){return y.at-x.at});
+}
+function leagueTable(from,to){
+  var rows={};
+  function g(n){return rows[n]||(rows[n]={n:n,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,t:0})}
+  S.members.forEach(function(n){g(n)});
+  leagueMatches(from,to).forEach(function(m){
+    var A=g(m.a),B=g(m.b);A.p++;B.p++;A.gf+=m.sa;A.ga+=m.sb;B.gf+=m.sb;B.ga+=m.sa;
+    if(m.sa>m.sb){A.w++;A.pts+=3;B.l++}else if(m.sb>m.sa){B.w++;B.pts+=3;A.l++}else{A.d++;B.d++;A.pts++;B.pts++}
+  });
+  S.champs.forEach(function(c){if(c.at>=from&&c.at<=to)g(c.name).t++});
+  return Object.keys(rows).map(function(k){var r=rows[k];r.gd=r.gf-r.ga;return r}).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.n.localeCompare(b.n,'ar')});
+}
+function tableHTML(rows){
+  var top=0;rows.forEach(function(r){if(r.gf>top)top=r.gf});
+  return '<div class="tbl-wrap"><table class="lt"><thead><tr><th class="pl">اللاعب</th><th>نقاط</th><th>لعب</th><th>له</th><th>عليه</th><th>فرق</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>كأس</th></tr></thead><tbody>'+
+    rows.map(function(r,i){
+      var gd=r.gf-r.ga;
+      return '<tr'+(i===0&&r.p>0?' class="first"':'')+'><td class="pl"><span class="muted num">'+(i+1)+'</span> '+avatar(r.n)+'<span class="ln">'+esc(r.n)+'</span>'+(top>0&&r.gf===top?'<span class="star" title="الهداف" aria-label="الهداف">★</span>':'')+'</td><td class="num pts">'+r.pts+'</td><td class="num">'+r.p+'</td><td class="num">'+r.gf+'</td><td class="num">'+r.ga+'</td><td class="num">'+(gd>0?'+':'')+gd+'</td><td class="num">'+r.w+'</td><td class="num">'+r.d+'</td><td class="num">'+r.l+'</td><td class="num">'+r.t+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+function resultRow(m){
+  return '<li class="match"><span class="p">'+nameTag(m.a)+'</span><span class="num" style="font-weight:700;color:var(--accent2)">'+m.sa+' - '+m.sb+'</span><span class="p">'+nameTag(m.b)+'</span><span class="vs">'+m.k+'</span></li>';
+}
+RENDER.league=function(){
+  var as=activeSeason(),mg=can('season'),h='';
+  if(as){
+    var now=Date.now()+1,ms=leagueMatches(as.startedAt,now),d='';
+    try{d=new Date(as.startedAt).toLocaleDateString(LOC,{day:'numeric',month:'long',timeZone:TZ})}catch(e){}
+    h+='<div class="card"><p class="eyebrow">الموسم '+as.n+' جاري</p><p class="hint" style="margin:0">بدأ '+esc(d)+' · '+ms.length+' مباراة. الموسم ما ينتهي إلا لما القائد ينهيه.</p>'+(mg?'<div class="row" style="margin-top:12px"><button type="button" class="btn ghost sm" data-act="seasonend">إنهاء الموسم</button></div>':'')+'</div>';
+    h+=tableHTML(leagueTable(as.startedAt,now));
+    h+='<p class="hint">فوز 3 نقاط وتعادل نقطة. تنحسب مباريات القرعة اليومية وكأس الخميس، وتعادل الكأس بركلات الترجيح ينحسب تعادل. عمود "كأس" هو عدد ألقاب الكأس بهالموسم.</p>';
+    h+='<h2>آخر النتائج</h2>'+(ms.length?'<ul class="matches">'+ms.slice(0,10).map(resultRow).join('')+'</ul>':'<p class="empty">ما اكو نتائج بعد. سجّل نتائج مباريات القرعة أو الكأس.</p>');
+  }else{
+    h+='<div class="card"><p class="eyebrow">ما اكو موسم شغال</p><p class="hint">النتائج ما تنحسب بالدوري لين القائد يبدأ موسم.</p>'+(mg?'<button type="button" class="btn" data-act="seasonstart">'+(S.season?'ابدأ موسم جديد':'ابدأ الموسم الأول')+'</button>':'')+'</div>';
+  }
+  var past=S.seasons.slice().sort(function(a,b){return (b.n||0)-(a.n||0)});
+  if(past.length){
+    h+='<h2>المواسم السابقة</h2>'+past.map(function(s){
+      var w=s.table&&s.table[0];
+      return '<details class="card"><summary>الموسم '+s.n+(w?' · البطل '+esc(w.n)+' ('+w.pts+' نقطة)':'')+'</summary>'+(s.table&&s.table.length?tableHTML(s.table):'<p class="empty">ما كانت اكو نتائج.</p>')+'</details>';
+    }).join('');
+  }
+  $('#leagueBody').innerHTML=h;
+};
+function startSeason(){
+  if(!can('season')||activeSeason())return;
+  var n=((S.season&&S.season.n)||0)+1;
+  run(async function(){
+    await db.doc('season/current').set({id:Date.now().toString(36),n:n,startedAt:Date.now()});
+    await postSys('بدأ الموسم '+n+' من دوري الاتحاد. كل مباراة تنحسب من الحين.');
+    toast('بدأ الموسم');
+  });
+}
+function endSeason(){
+  var s=activeSeason();if(!s||!can('season'))return;
+  var end=Date.now(),rows=leagueTable(s.startedAt,end).filter(function(r){return r.p>0||r.t>0});
+  var champ=rows.length&&rows[0].p>0?rows[0]:null;
+  run(async function(){
+    await db.doc('seasons/'+s.id).set({n:s.n,start:s.startedAt,end:end,table:rows});
+    await db.doc('season/current').set({id:s.id,n:s.n,startedAt:s.startedAt,endedAt:end});
+    await postSys('انتهى الموسم '+s.n+(champ?'. بطل الدوري: '+champ.n+' بـ '+champ.pts+' نقطة.':'.'));
+    toast('انتهى الموسم');
+  });
+}
+function dayRow(m,i,r,d){
+  var ok=!!(r&&r.a===m.a&&r.b===m.b),me=myPlayer(),mine=!!me&&(me.name===m.a||me.name===m.b);
+  var mid=ok?'<span class="score num">'+r.sa+' - '+r.sb+'</span>':'<span class="vs">ضد</span>';
+  var h='<li class="match dm"><div class="dmrow"><span class="n num">'+(i+1)+'</span><span class="p">'+nameTag(m.a)+'</span>'+mid+'<span class="p">'+nameTag(m.b)+'</span></div>';
+  if(ok){
+    if(can('cupManage'))h+='<div class="cf" style="flex:1 1 100%"><button type="button" class="btn ghost" data-act="dayclr" data-i="'+i+'">مسح النتيجة</button></div>';
+  }else if(d.id&&(can('cupManage')||(can('matchReport')&&mine))){
+    h+='<form class="resForm" data-kind="day" data-i="'+i+'" data-a="'+esc(m.a)+'" data-b="'+esc(m.b)+'" data-draw="'+esc(d.id)+'" autocomplete="off"><label>'+esc(m.a)+'<input type="number" inputmode="numeric" min="0" max="99" id="da_'+i+'"></label><label>'+esc(m.b)+'<input type="number" inputmode="numeric" min="0" max="99" id="db_'+i+'"></label><button class="btn full" type="submit">سجّل النتيجة</button></form>';
+  }
+  return h+'</li>';
+}
+function saveDay(f){
+  var i=+f.dataset.i,a=f.dataset.a,b=f.dataset.b,did=f.dataset.draw;
+  var sa=parseInt($('#da_'+i).value,10),sb=parseInt($('#db_'+i).value,10);
+  if(!(sa>=0&&sa<=99&&sb>=0&&sb<=99)){toast('اكتب نتيجة صحيحة للاعبين');return}
+  run(function(){return db.doc('dayRes/'+did+'_'+i).set({kind:'day',draw:did,i:i,a:a,b:b,sa:sa,sb:sb,by:uid||null,at:Date.now()}).then(function(){toast(activeSeason()?'انحفظت النتيجة':'انحفظت، بس ما تنحسب لأن ما اكو موسم شغال')})});
+}
+
+/* ---------- gate ---------- */
+function authFormHTML(){
+  var su=authMode==='signup';
+  return '<form id="authForm" class="reg" data-mode="'+authMode+'" autocomplete="on">'+
+    (su?'<button type="button" class="reg-photo" data-act="regphoto" aria-label="اختر صورتك"><span id="regPrev"><span class="av lg ph" style="background:var(--surface2);color:var(--accent)">+</span></span><span class="reg-cam">أضف صورتك (اختياري)</span></button><input type="file" id="regFile" accept="image/*" hidden>':'')+
+    '<label for="aName">اسمك بالاتحاد</label><input type="text" id="aName" maxlength="30" autocomplete="username" autocapitalize="off">'+
+    '<label for="aPin">الرمز السري (6 أرقام)</label><input type="password" id="aPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="'+(su?'new-password':'current-password')+'">'+
+    (su?'<label for="aPin2">أعد كتابة الرمز</label><input type="password" id="aPin2" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password"><p class="hint">اختر رمز تتذكره. بعد التسجيل ما يكدر أحد يدخل باسمك بدون الرمز.</p>':'')+
+    '<p class="err" id="aErr" role="alert"></p>'+
+    '<button class="btn block" type="submit">'+(su?'سجّل حسابي':'دخول')+'</button>'+
+    '<button type="button" class="btn link" data-act="authmode" data-m="'+(su?'login':'signup')+'">'+(su?'عندي حساب، أريد أدخل':'أول مرة؟ سجّل حساب جديد')+'</button></form>';
+}
+function renderGate(){
+  var st=configMissing?'setup':(!booted||signing)?'load':!uid?'auth':!plLoaded?'load':!registered()?'reg':'app';
+  if(st==='auth')st='auth:'+authMode;
+  if(st!==gateState){
+    gateState=st;var b=$('#gateBody');
+    if(st==='load')b.innerHTML='<p class="hint">جاري فتح الاتحاد...</p>';
+    else if(st==='setup')b.innerHTML='<div class="card"><h3>باقي إعداد القاعدة</h3><p class="hint">لازم تحط إعدادات Firebase داخل ملف firebase-config.js. الخطوات بملف README.</p></div>';
+    else if(st.indexOf('auth')===0)b.innerHTML=authFormHTML();
+    else if(st==='reg'){
+      var first=!(S.roles&&S.roles.captain);
+      var note=first?'انت أول واحد، راح تصير قائد الاتحاد.':'راح تدخل بصفة لاعب. القائد يحدد صلاحياتك.';
+      b.innerHTML='<form id="regForm" class="reg" autocomplete="off"><button type="button" class="reg-photo" data-act="regphoto" aria-label="اختر صورتك"><span id="regPrev"><span class="av lg ph" style="background:var(--surface2);color:var(--accent)">+</span></span><span class="reg-cam">أضف صورتك</span></button><input type="file" id="regFile" accept="image/*" hidden><label for="regName">اسمك بالاتحاد</label><input type="text" id="regName" maxlength="30" value="'+esc(meDefault)+'" autocomplete="off"><p class="hint">'+note+'</p><button class="btn block" type="submit">دخول الاتحاد</button></form>';
+    }
+  }
+  $('#gate').hidden=st==='app';$('#shell').hidden=st!=='app';
+  return st==='app';
+}
+
+/* ---------- auth (name + PIN -> Firebase email/password) ---------- */
+function cyrb53(str,seed){
+  var h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;
+  for(var i=0;i<str.length;i++){var ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
+  h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+  return (4294967296*(2097151&h2)+(h1>>>0)).toString(16).padStart(14,'0');
+}
+function nameKey(n){return String(n).replace(/\s+/g,' ').trim().toLowerCase()}
+function emailOf(n){var k='fifa-union:'+nameKey(n);return 'u'+cyrb53(k,1)+cyrb53(k,7)+'@fifa-union.app'}
+function pinPass(p){return 'fifa'+p}
+function authMsg(e){
+  var c=e&&e.code||'';
+  if(c==='auth/email-already-in-use')return 'هالاسم مسجل من قبل. اضغط "عندي حساب" وادخل برمزك.';
+  if(c==='auth/invalid-credential'||c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-login-credentials')return 'الاسم أو الرمز غلط.';
+  if(c==='auth/network-request-failed')return 'تأكد من الإنترنت وجرب مرة ثانية.';
+  if(c==='auth/too-many-requests')return 'محاولات كثيرة. انتظر شوية وجرب.';
+  if(c==='auth/operation-not-allowed')return 'تسجيل الدخول بالبريد مو مفعّل بـ Firebase (راجع README).';
+  if(c==='auth/weak-password')return 'الرمز ضعيف، استخدم 6 أرقام.';
+  return 'صار خطأ: '+(c||'جرب مرة ثانية');
+}
+function authFail(m){var el=$('#aErr');if(el)el.textContent=m}
+function doAuth(f){
+  var su=f.dataset.mode==='signup',name=$('#aName').value.replace(/\s+/g,' ').trim(),pin=$('#aPin').value.trim();
+  if(!name){authFail('اكتب اسمك');return}
+  if(!/^\d{6}$/.test(pin)){authFail('الرمز السري لازم 6 أرقام');return}
+  if(su&&$('#aPin2').value.trim()!==pin){authFail('الرمزين مو متطابقين');return}
+  authFail('');
+  var btn=f.querySelector('button[type=submit]');if(btn)btn.disabled=true;
+  var em=emailOf(name),pw=pinPass(pin),p;
+  if(su){
+    signing=true;
+    p=auth.createUserWithEmailAndPassword(em,pw).then(function(c){
+      return c.user.updateProfile({displayName:name}).catch(function(){}).then(function(){
+        return db.doc('players/'+c.user.uid).set({name:name,login:name,photo:regPhoto||null,at:Date.now()});
+      });
+    }).then(function(){signing=false;gateState='';renderAll()});
+  }else p=auth.signInWithEmailAndPassword(em,pw);
+  p.catch(function(e){signing=false;gateState='';renderAll();setTimeout(function(){authFail(authMsg(e))},0)});
+}
+function doLogout(){if(!auth)return;auth.signOut().then(function(){try{location.reload()}catch(e){}})}
+function changePin(f){
+  var o=$('#pinOld').value.trim(),n=$('#pinNew').value.trim(),u=auth&&auth.currentUser;
+  if(!u)return;
+  if(!/^\d{6}$/.test(o)||!/^\d{6}$/.test(n)){toast('الرمز لازم 6 أرقام');return}
+  var cred=firebase.auth.EmailAuthProvider.credential(u.email,pinPass(o));
+  u.reauthenticateWithCredential(cred).then(function(){return u.updatePassword(pinPass(n))}).then(function(){$('#pinOld').value='';$('#pinNew').value='';toast('انغيّر الرمز السري')},function(e){toast(authMsg(e))});
+}
+
+/* ---------- header, nav, tabs ---------- */
+function groupOf(leaf){for(var i=0;i<GROUPS.length;i++)if(GROUPS[i].leaves.indexOf(leaf)>=0)return GROUPS[i];return GROUPS[0]}
+function leavesOf(g){return g.leaves.filter(function(l){return l!=='admin'||canManage()})}
+function buildNav(){
+  $('#navIn').innerHTML=GROUPS.map(function(g){return '<button type="button" class="nb" data-g="'+g.k+'" data-gk="'+g.k+'">'+ICON[g.i]+'<span>'+g.t+'</span></button>'}).join('');
+}
+function renderHeader(){
+  var p=curPresident(),el=$('#pres');
+  if(p){el.innerHTML=CROWN+'رئيس الاتحاد: '+esc(p);el.hidden=false}else el.hidden=true;
+  var me=myPlayer();
+  $('#meBtn').innerHTML=me?avatar(me.name):'<span class="muted">·</span>';
+  $('#pageT').textContent=LEAF_T[tab]||'';
+  var g=groupOf(tab);
+  document.querySelectorAll('.nb').forEach(function(b){if(b.dataset.gk===g.k)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  var ls=leavesOf(g),seg=$('#seg');
+  if(ls.length>1){
+    seg.hidden=false;
+    seg.innerHTML=ls.map(function(l){return '<button type="button" role="tab" data-tab="'+l+'" aria-selected="'+(l===tab)+'">'+LEAF_S[l]+'</button>'}).join('');
+  }else seg.hidden=true;
+  $('#memList').innerHTML=S.members.map(function(n){return '<option value="'+esc(n)+'"></option>'}).join('');
+}
+function renderTab(){var f=RENDER[tab];if(f)f()}
+var pend=false;
+function renderAll(){
+  if(pend)return;pend=true;
+  requestAnimationFrame(function(){
+    pend=false;derive();maybeClaim();
+    if(renderGate()){renderHeader();renderTab()}
+  });
+}
+function showTab(t){
+  if(!RENDER[t])t='news';
+  if(t==='admin'&&!canManage())t='me';
+  tab=t;lastLeaf[groupOf(t).k]=t;
+  Object.keys(RENDER).forEach(function(n){$('#p-'+n).hidden=n!==t});
+  if(gateState==='app'){renderHeader();renderTab()}
+  try{window.scrollTo(0,0)}catch(e){}
+}
+function go(t){showTab(t);try{location.hash=t}catch(x){}}
+
+/* ---------- news ---------- */
+function postHTML(p,lc,liked,reps){
+  var pl=p.sys?null:playerById(p.uid),name=p.sys?'أخبار الاتحاد':(pl?pl.name:'لاعب');
+  var av=p.sys?'<span class="av md sysav">'+CREST+'</span>':avatar(name,'md');
+  var canDel=(!!p.uid&&p.uid===uid)||can('moderate');
+  var open=!!openThreads[p.id],lk=(!registered()||!canWrite)?' disabled':'';
+  return '<article class="post"><div class="pav">'+av+'</div><div class="pb"><div class="pt"><b class="pn">'+esc(name)+'</b>'+
+    (p.sys?'<span class="rb cap">رسمي</span>':roleBadge(p.uid)+(isPres(name)?'<span class="pres-tag">'+CROWN+'رئيس</span>':''))+
+    '<span class="pa">· '+relTime(p.at)+'</span>'+(canDel?'<button type="button" class="ico" data-act="delpost" data-id="'+esc(p.id)+'" aria-label="حذف المنشور">'+ICON.trash+'</button>':'')+
+    '</div><p class="px">'+esc(p.text)+'</p><div class="pact"><button type="button" class="act" data-act="thread" data-id="'+esc(p.id)+'" aria-label="الردود">'+ICON.reply+'<span class="num">'+reps.length+'</span></button>'+
+    '<button type="button" class="act'+(liked?' on':'')+'" data-act="like" data-id="'+esc(p.id)+'" aria-pressed="'+liked+'" aria-label="إعجاب"'+lk+'>'+ICON.heart+'<span class="num">'+lc+'</span></button></div>'+
+    (open?threadHTML(p,reps):'')+'</div></article>';
+}
+function threadHTML(p,reps){
+  return '<div class="thread">'+reps.map(function(r){
+    var rp=playerById(r.uid),rn=rp?rp.name:'لاعب',cd=(!!r.uid&&r.uid===uid)||can('moderate');
+    return '<div class="rep">'+avatar(rn)+'<div><div class="pt"><b class="pn">'+esc(rn)+'</b>'+roleBadge(r.uid)+'<span class="pa">· '+relTime(r.at)+'</span>'+(cd?'<button type="button" class="ico" data-act="delrep" data-id="'+esc(r.id)+'" aria-label="حذف الرد">'+ICON.trash+'</button>':'')+'</div><p class="px">'+esc(r.text)+'</p></div></div>';
+  }).join('')+(can('post')?'<form class="repForm row" data-id="'+esc(p.id)+'" autocomplete="off"><input type="text" id="rp_'+esc(p.id)+'" maxlength="200" placeholder="اكتب ردّك" aria-label="ردّك"><button class="btn sm" type="submit">رد</button></form>':'')+'</div>';
+}
+RENDER.news=function(){
+  var me=myPlayer(),ok=can('post');
+  $('#cmpAv').innerHTML=me?avatar(me.name,'md'):'';
+  $('#postIn').disabled=!ok;$('#postBtn').disabled=!ok;
+  $('#postIn').placeholder=ok?'شنو الأخبار بالاتحاد؟':'النشر مو متاح لحسابك حالياً.';
+  var el=$('#feed'),cap=capture(el),lb={},ml={},rb={};
+  S.likes.forEach(function(l){lb[l.post]=(lb[l.post]||0)+1;if(l.uid===uid)ml[l.post]=1});
+  S.replies.forEach(function(r){(rb[r.post]=rb[r.post]||[]).push(r)});
+  var list=S.posts.slice().sort(function(a,b){return (b.at||0)-(a.at||0)}).slice(0,80);
+  el.innerHTML=list.length?list.map(function(p){
+    var reps=(rb[p.id]||[]).sort(function(a,b){return (a.at||0)-(b.at||0)});
+    return postHTML(p,lb[p.id]||0,!!ml[p.id],reps);
+  }).join(''):'<div class="card"><p class="empty" style="margin:0">ما اكو أخبار بعد. انشر أول خبر بالاتحاد.</p></div>';
+  restore(cap);
+};
+function updCount(){$('#cmpCount').textContent=String(280-$('#postIn').value.length)}
+function newPost(){
+  var t=$('#postIn').value.trim();if(!t||!can('post'))return;
+  run(function(){return db.collection('posts').add({uid:uid,text:t.slice(0,280),at:Date.now()}).then(function(){$('#postIn').value='';updCount()})});
+}
+function postSys(text){return db.collection('posts').add({sys:true,text:text,at:Date.now()})}
+function toggleLike(id){
+  if(!registered())return;
+  var liked=S.likes.some(function(l){return l.post===id&&l.uid===uid}),ref=db.doc('likes/'+id+'_'+uid);
+  run(function(){return liked?ref.delete():ref.set({post:id,uid:uid,at:Date.now()})});
+}
+function delPost(id){
+  run(async function(){
+    await db.doc('posts/'+id).delete();
+    var a=S.replies.filter(function(r){return r.post===id}),b=S.likes.filter(function(l){return l.post===id});
+    for(var i=0;i<a.length;i++)await db.doc('replies/'+a[i].id).delete();
+    for(var j=0;j<b.length;j++)await db.doc('likes/'+b[j].id).delete();
+  });
+}
+function sendReply(f){
+  var id=f.dataset.id,inp=document.getElementById('rp_'+id),t=inp?inp.value.trim():'';
+  if(!t||!can('post'))return;
+  run(function(){return db.collection('replies').add({post:id,uid:uid,text:t.slice(0,200),at:Date.now()}).then(function(){if(inp)inp.value=''})});
+}
+
+/* ---------- draw ---------- */
+var cv=$('#wheel'),ctx=cv.getContext('2d');
+function poolActive(){var d=S.draw;return !!(d&&d.pool&&d.pool.length>0)}
+function wheelNames(){return poolActive()?S.draw.pool:S.members}
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||'#888'}
+function drawWheel(){
+  var size=cv.clientWidth;if(!size)return;
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=Math.round(size*dpr);cv.height=Math.round(size*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,size,size);
+  var c=size/2,R=c-8,names=wheelNames(),n=names.length,edge=cssVar('--bg2'),acc=cssVar('--accent');
+  if(!n){
+    ctx.beginPath();ctx.arc(c,c,R,0,7);ctx.lineWidth=2;ctx.setLineDash([8,8]);ctx.strokeStyle=cssVar('--line2');ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=cssVar('--muted');ctx.textAlign='center';ctx.font='500 16px "IBM Plex Sans Arabic",Tajawal,sans-serif';ctx.fillText('أضف أسماء اللاعبين',c,c+5);return;
+  }
+  var seg=Math.PI*2/n,fs=Math.max(11,Math.min(19,230/n));
+  ctx.direction='ltr';
+  for(var i=0;i<n;i++){
+    ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,R,rot+i*seg,rot+(i+1)*seg);ctx.closePath();
+    ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();ctx.lineWidth=n>1?2:0;ctx.strokeStyle=edge;ctx.stroke();
+    ctx.save();ctx.translate(c,c);ctx.rotate(rot+(i+.5)*seg);
+    ctx.fillStyle='#fff';ctx.textAlign='right';ctx.textBaseline='middle';ctx.font='600 '+fs+'px "IBM Plex Sans Arabic",Tajawal,sans-serif';
+    var t=names[i];if(t.length>13)t=t.slice(0,12)+'…';
+    ctx.fillText(t,R-16,0);ctx.restore();
+  }
+  ctx.beginPath();ctx.arc(c,c,R,0,7);ctx.lineWidth=4;ctx.strokeStyle=acc;ctx.stroke();
+  ctx.beginPath();ctx.arc(c,c,18,0,7);ctx.fillStyle=edge;ctx.fill();ctx.lineWidth=3;ctx.strokeStyle=acc;ctx.stroke();
+}
+async function spin(){
+  if(spinning||!poolActive()||!db||!can('draw'))return;
+  var pool=S.draw.pool.slice(),n=pool.length,TAU=Math.PI*2,seg=TAU/n;
+  var idx=Math.floor(Math.random()*n),jit=(Math.random()-.5)*seg*.7;
+  var base=1.5*Math.PI-(idx+.5)*seg+jit;
+  var fin=base+TAU*Math.ceil((rot+6*TAU-base)/TAU);
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var start=rot,t0=performance.now(),dur=reduce?500:4600;
+  spinning=true;RENDER.draw();
+  await new Promise(function(res){
+    function f(t){var p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);rot=start+(fin-start)*e;drawWheel();if(p<1)requestAnimationFrame(f);else res()}
+    requestAnimationFrame(f);
+  });
+  rot=fin%TAU;
+  var name=pool[idx];
+  toast('طلع: '+name);
+  await run(function(){return applyPick(name)});
+  spinning=false;RENDER.draw();
+}
+function applyPick(name){
+  var st=S.draw||{};
+  if(!st.pool||st.pool.indexOf(name)<0)return;
+  var pool=st.pool.filter(function(x){return x!==name}),matches=(st.matches||[]).slice(),pending=st.pending||null,bye=st.bye||null;
+  if(!pending){pending=name}else{matches.push({a:pending,b:name});pending=null}
+  if(pool.length===1){
+    if(pending){matches.push({a:pending,b:pool[0]});pending=null}else{bye=pool[0]}
+    pool=[];
+  }else if(pool.length===0&&pending){bye=pending;pending=null}
+  return db.doc('draw/state').set({pool:pool,matches:matches,pending:pending,bye:bye,id:st.id||null,at:Date.now()});
+}
+function newDraw(){
+  if(S.members.length<2||!can('draw'))return;
+  return run(function(){return db.doc('draw/state').set({pool:S.members.slice(),matches:[],pending:null,bye:null,id:uidNew(),at:Date.now()})});
+}
+RENDER.draw=function(){
+  var d=S.draw||{},active=poolActive(),matches=d.matches||[],cd=can('draw');
+  $('#addForm').hidden=!cd;
+  $('#members').innerHTML=S.members.length?S.members.map(function(n){
+    var x='';
+    if(cd&&S.manual.indexOf(n)>=0)x='<button type="button" class="x" data-act="rm" data-name="'+esc(n)+'" aria-label="حذف '+esc(n)+'">×</button>';
+    else if(myRole()==='captain'){var pl=S.players.filter(function(p){return p.name===n})[0];if(pl&&pl.id!==uid)x='<button type="button" class="x" data-act="rmp" data-id="'+esc(pl.id)+'" aria-label="حذف '+esc(n)+'">×</button>'}
+    return '<span class="chip">'+nameTag(n)+(x||'<span style="width:10px"></span>')+'</span>';
+  }).join(''):'<p class="empty">ما اكو لاعبين بعد. الأصدقاء يظهرون هنا لما يسجلون أسماءهم.</p>';
+  $('#mcount').textContent=S.members.length?'('+S.members.length+')':'';
+  var st='';
+  if(!spinning){
+    if(active&&d.pending)st='الدور الجاي: منو يلعب ضد <b>'+esc(d.pending)+'</b>؟ · باقي '+d.pool.length+' بالعجلة';
+    else if(active)st='لفة تختار أول لاعب، واللفة اللي بعدها تختار منافسه · باقي '+d.pool.length+' بالعجلة';
+    else if(matches.length||d.bye)st='خلصت القرعة.'+(d.bye?' <b>'+esc(d.bye)+'</b> يستريح هالجولة.':'');
+    else st='أضف الأسماء وابدأ القرعة.';
+    if(!cd)st+=' · القرعة للقائد والمساعد.';
+  }
+  $('#drawStatus').innerHTML=st;
+  var b=$('#spinBtn');
+  if(spinning){b.disabled=true;b.textContent='تدور...'}
+  else if(active){b.disabled=!cd;b.textContent='لفّ العجلة';b.onclick=spin}
+  else{
+    b.disabled=!cd||S.members.length<2;
+    b.textContent=S.members.length<2?'أضف لاعبين اثنين على الأقل':(matches.length?'ابدأ قرعة جديدة':'ابدأ القرعة');
+    b.onclick=newDraw;
+  }
+  $('#resetBtn').hidden=!(active||matches.length||d.bye)||!cd;
+  var dayMap={};S.dayRes.forEach(function(r){if(d.id&&r.draw===d.id)dayMap[r.i]=r});
+  var mEl=$('#matches'),mcap=capture(mEl);
+  var rows=matches.map(function(m,i){return dayRow(m,i,dayMap[i],d)});
+  if(d.pending)rows.push('<li class="match side"><span class="n">؟</span><span class="p">'+nameTag(d.pending)+'</span><span class="vs">ينتظر منافس</span></li>');
+  if(d.bye)rows.push('<li class="match side"><span class="n">—</span><span class="p">'+nameTag(d.bye)+'</span><span class="vs">استراحة</span></li>');
+  mEl.innerHTML=rows.length?'<ul class="matches">'+rows.join('')+'</ul>':'<p class="empty">المباريات تظهر هنا بعد القرعة.</p>';
+  restore(mcap);
+  $('#copyBtn').hidden=!matches.length;
+  drawWheel();
+};
+function addMember(name){
+  name=name.replace(/\s+/g,' ').trim();if(!name||!can('draw'))return;
+  if(S.members.indexOf(name)>=0){toast('هالاسم موجود');return}
+  if(S.members.length>=30){toast('أقصى عدد 30 لاعب');return}
+  var names=S.manual.concat([name]);
+  run(function(){return db.doc('members/list').set({names:names})});
+}
+function removeMember(name){
+  if(!can('draw'))return;
+  var names=S.manual.filter(function(n){return n!==name});
+  run(function(){return db.doc('members/list').set({names:names})});
+}
+function copySchedule(){
+  var d=S.draw||{},lines=(d.matches||[]).map(function(m,i){return 'المباراة '+(i+1)+': '+m.a+' ضد '+m.b});
+  if(d.bye)lines.push('يستريح: '+d.bye);
+  var txt='قرعة اتحاد الفيفا\n'+lines.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){toast('اننسخ الجدول')},function(){toast('ما كدرت أنسخ، حدد الجدول ونسخه يدوياً')});
+  }else toast('ما كدرت أنسخ، حدد الجدول ونسخه يدوياً');
+}
+
+/* ---------- cup ---------- */
+function teamRow(n,score,win,empty){
+  return '<div class="tr'+(win?' w':'')+'"><span class="tn">'+(n?nameTag(n):'<span class="tbd">'+empty+'</span>')+'</span><span class="sc num">'+(score==null?'':score)+'</span></div>';
+}
+function matchHTML(x,m){
+  var rs=x.res,h='<div class="cm">';
+  h+=teamRow(x.a,rs?rs.sa:null,rs&&rs.w===x.a,x.bye?'—':'ينتظر الفائز')+teamRow(x.b,rs?rs.sb:null,rs&&rs.w===x.b,x.bye?'—':'ينتظر الفائز');
+  if(x.bye){h+='<p class="cf">يعبر للجولة الجاية بدون منافس</p>'}
+  else if(rs){
+    var nx=m.rounds[x.r+1]&&m.rounds[x.r+1][x.i>>1],canClr=can('cupManage')&&!(nx&&nx.res);
+    h+='<p class="cf"><span>'+(rs.sa===rs.sb?'فاز بركلات الترجيح':'انتهت')+'</span>'+(canClr?'<button type="button" class="btn ghost" data-act="clr" data-r="'+x.r+'" data-i="'+x.i+'">مسح النتيجة</button>':'')+'</p>';
+  }else if(x.a&&x.b){
+    var me=myPlayer(),mine=me&&(me.name===x.a||me.name===x.b);
+    if(can('cupManage')||(can('cupReport')&&mine)){
+      var id=x.r+'_'+x.i;
+      h+='<form class="resForm" data-r="'+x.r+'" data-i="'+x.i+'" data-a="'+esc(x.a)+'" data-b="'+esc(x.b)+'" autocomplete="off">'+
+        '<label>'+esc(x.a)+'<input type="number" inputmode="numeric" min="0" max="99" id="sa_'+id+'"></label>'+
+        '<label>'+esc(x.b)+'<input type="number" inputmode="numeric" min="0" max="99" id="sb_'+id+'"></label>'+
+        '<label class="full">إذا تعادلوا، منو فاز بالركلات؟<select id="pen_'+id+'"><option value="">لا أحد (ما تعادلوا)</option><option value="a">'+esc(x.a)+'</option><option value="b">'+esc(x.b)+'</option></select></label>'+
+        '<button class="btn full" type="submit">سجّل النتيجة</button></form>';
+    }else h+='<p class="cf">بانتظار النتيجة</p>';
+  }else h+='<p class="cf">ينتظر نتيجة المباراة السابقة</p>';
+  return h+'</div>';
+}
+RENDER.cup=function(){
+  var el=$('#cupBody'),cap=capture(el),m=cupModel(),h='',mg=can('cupManage');
+  if(!m){
+    h+='<div class="card"><p class="empty" style="margin:0">ما اكو كأس شغالة حالياً. '+(mg?'اختر المشاركين وابدأ من تحت.':'ننتظر القائد أو المساعد يبدأ الكأس.')+'</p></div>';
+  }else{
+    var R=m.rounds.length;
+    if(m.champion)h+='<div class="card win"><p class="eyebrow">بطل الكأس رقم '+m.n+'</p><p class="winner">'+nameTag(m.champion)+'</p></div>';
+    m.rounds.forEach(function(rd,r){
+      h+='<h3 class="rh">'+roundName(r,R)+'</h3><div class="ms">'+rd.map(function(x){return matchHTML(x,m)}).join('')+'</div>';
+    });
+  }
+  if(mg&&S.members.length>=2){
+    h+='<div class="card admin-note"><h3>'+(m?'كأس جديدة':'ابدأ الكأس')+'</h3><p class="hint">اختر المشاركين، والترتيب يطلع عشوائي. اللي ما عنده منافس يعبر تلقائياً.</p><div class="picks">'+
+      S.members.map(function(n){var on=cupSel[n]!==false;return '<button type="button" class="pick'+(on?' on':'')+'" data-act="cupsel" data-name="'+esc(n)+'" aria-pressed="'+on+'">'+nameTag(n)+'</button>'}).join('')+
+      '</div><button type="button" class="btn" data-act="cupstart">'+(m?'ابدأ كأس جديدة':'ابدأ الكأس')+'</button></div>';
+  }
+  var ch=S.champs.slice().sort(function(a,b){return (b.n||0)-(a.n||0)});
+  h+='<h2>لوحة الأبطال</h2>'+(ch.length?'<ul class="matches">'+ch.map(function(c){
+    var d='';try{d=new Date(c.at).toLocaleDateString(LOC,{day:'numeric',month:'long',timeZone:TZ})}catch(e){}
+    return '<li class="match"><span class="n num">'+esc(c.n||'')+'</span><span class="p">'+nameTag(c.name)+'</span><span class="vs">'+esc(d)+'</span></li>';
+  }).join('')+'</ul>':'<p class="empty">لسا ما اكو بطل. أول كأس تنتهي يطلع بطلها هنا.</p>');
+  el.innerHTML=h;restore(cap);
+};
+function startCup(){
+  if(!can('cupManage'))return;
+  var names=S.members.filter(function(n){return cupSel[n]!==false});
+  if(names.length<2){toast('اختر لاعبين اثنين على الأقل');return}
+  var N=2;while(N<names.length)N*=2;
+  var p=shuffle(names),byes=N-p.length,pairs=[];
+  for(var i=0;i<byes;i++)pairs.push([p.pop(),null]);
+  while(p.length)pairs.push([p.pop(),p.pop()]);
+  var seeds=[];shuffle(pairs).forEach(function(x){seeds.push(x[0],x[1])});
+  var n=((S.cup&&S.cup.n)||0)+1;
+  run(async function(){
+    await db.doc('cup/current').set({id:Date.now().toString(36),n:n,seeds:seeds,at:Date.now()});
+    await postSys('بدأت كأس الخميس رقم '+n+' بمشاركة '+names.length+' لاعبين.');
+    toast('بدأت الكأس');
+  });
+}
+function saveResult(f){
+  var m=cupModel();if(!m)return;
+  var r=+f.dataset.r,i=+f.dataset.i,a=f.dataset.a,b=f.dataset.b,id=r+'_'+i;
+  var sa=parseInt($('#sa_'+id).value,10),sb=parseInt($('#sb_'+id).value,10),pen=$('#pen_'+id).value;
+  if(!(sa>=0&&sa<=99&&sb>=0&&sb<=99)){toast('اكتب نتيجة صحيحة للاعبين');return}
+  var w=sa>sb?a:sb>sa?b:(pen==='a'?a:pen==='b'?b:null);
+  if(!w){toast('تعادل! اختر الفائز بركلات الترجيح');return}
+  var cid=m.id,R=m.rounds.length,n=m.n;
+  run(async function(){
+    await db.doc('cupRes/'+cid+'_'+id).set({cup:cid,r:r,i:i,a:a,b:b,sa:sa,sb:sb,w:w,by:uid||null,at:Date.now()});
+    if(r===R-1){
+      await db.doc('champions/'+cid).set({name:w,n:n,cup:cid,at:Date.now()});
+      await postSys('بطل كأس الخميس رقم '+n+': '+w+'. مبروك!');
+    }
+    toast('انحفظت النتيجة');
+  });
+}
+function clearRes(r,i){
+  var m=cupModel();if(!m||!can('cupManage'))return;var cid=m.id,R=m.rounds.length;
+  run(async function(){
+    await db.doc('cupRes/'+cid+'_'+r+'_'+i).delete();
+    if(r===R-1)await db.doc('champions/'+cid).delete();
+  });
+}
+
+/* ---------- election ---------- */
+RENDER.election=function(){
+  var st=elState(),h='',mg=can('elManage');
+  $('#cfgForm').hidden=!mg;
+  if(st.k==='none'){
+    h='<div class="card"><p class="empty" style="margin:0">ما اكو جولة انتخابات حالياً.'+(mg?' سوّ جولة من النموذج تحت.':' ننتظر القائد أو المساعد يحدد المرشحين.')+'</p></div>';
+  }else{
+    var c=st.c,t=tally(c.rid),tot=t[0]+t[1];
+    var head='<div class="vs-head"><span>'+nameTag(c.c1)+'</span><b>ضد</b><span>'+nameTag(c.c2)+'</span></div>';
+    var mine=uid&&S.eVotes.filter(function(v){return v.id===uid&&v.picks&&(v.picks[c.rid]===0||v.picks[c.rid]===1)})[0];
+    if(st.k==='wait'){
+      var dl=daysBetween(todayKey(),c.round);
+      h='<div class="card">'+head+'<p class="hint" style="text-align:center;margin:0">يفتح التصويت <b>'+esc(fmtDate(c.round))+'</b> · باقي <span class="num">'+dl+'</span> '+(dl===1?'يوم':'أيام')+'</p></div>';
+    }else if(st.k==='open'){
+      if(mine){
+        var pick=mine.picks[c.rid]===0?c.c1:c.c2;
+        h='<div class="card">'+head+'<p class="hint" style="text-align:center">سجلنا صوتك لـ <b>'+esc(pick)+'</b>. عدد المصوتين: <span class="num">'+tot+'</span></p>'+
+          barRow(esc(c.c1),t[0],tot,t[0]>=t[1]&&t[0]>0)+barRow(esc(c.c2),t[1],tot,t[1]>=t[0]&&t[1]>0)+'<p class="hint" style="margin:12px 0 0">صوّتوا: '+esc(voterNames(c.rid).join('، '))+'</p></div>';
+      }else{
+        var why=whyNot('elVote'),dis=why?' disabled':'';
+        h='<div class="card">'+head+'<p class="hint" style="text-align:center">التصويت مفتوح. صوت واحد لكل شخص ولا يتغير.</p><div class="cands"><button type="button" class="cand" data-act="vote" data-i="0"'+dis+'>'+esc(c.c1)+'</button><button type="button" class="cand" data-act="vote" data-i="1"'+dis+'>'+esc(c.c2)+'</button></div>'+(why?'<p class="hint" style="margin-top:10px">'+why+'</p>':'')+'</div>';
+      }
+    }else{
+      var w=winnerOf(c);
+      h='<div class="card">'+(w?'<div class="win"><p class="eyebrow">فاز بالانتخابات</p><p class="winner">'+nameTag(w)+'</p></div>':'<div class="win"><p class="winner">تعادل بالأصوات</p><p class="hint">يبقى الرئيس الحالي لحد الجولة الجاية.</p></div>')+
+        barRow(esc(c.c1),t[0],tot,w===c.c1)+barRow(esc(c.c2),t[1],tot,w===c.c2)+'<p class="hint" style="margin:12px 0 0">صوّتوا ('+tot+'): '+esc(voterNames(c.rid).join('، '))+'</p></div>';
+    }
+  }
+  $('#elBody').innerHTML=h;
+};
+function castVote(i){
+  var st=elState();if(st.k!=='open'||!can('elVote'))return;
+  var c=st.c;
+  run(function(){
+    var mine=S.eVotes.filter(function(v){return v.id===uid})[0];
+    var picks=Object.assign({},mine&&mine.picks||{});
+    if(picks[c.rid]===0||picks[c.rid]===1)return;
+    picks[c.rid]=i;
+    return db.doc('eVotes/'+uid).set({picks:picks,at:Date.now()});
+  });
+}
+function saveConfig(){
+  if(!can('elManage'))return;
+  var c1=$('#c1').value.trim(),c2=$('#c2').value.trim();
+  if(!c1||!c2||c1===c2){toast('اكتب مرشحين مختلفين');return}
+  var force=$('#force').checked;
+  run(async function(){
+    var st=elState(),round=nextThu(todayKey());
+    if(st.k==='done'){
+      var w=winnerOf(st.c);
+      if(w){
+        await db.doc('election/president').set({name:w,rid:st.c.rid,at:Date.now()});
+        await db.doc('terms/'+st.c.rid).set({name:w,rid:st.c.rid,at:Date.now()});
+        await postSys('فاز '+w+' برئاسة الاتحاد بالانتخابات الأخيرة.');
+      }
+    }
+    await db.doc('election/config').set({c1:c1,c2:c2,rid:Date.now().toString(36),round:round,forceOpen:force,at:Date.now()});
+    await postSys('انتخابات جديدة: '+c1+' ضد '+c2+'. التصويت '+(force?'مفتوح الحين.':'يوم '+fmtDate(round)+'.'));
+    toast('بدأت الجولة');
+  });
+}
+
+/* ---------- player votes ---------- */
+RENDER.vote=function(){
+  var el=$('#pvBody');
+  $('#pvAdmin').hidden=!can('elManage');
+  if(!S.members.length){el.innerHTML='<div class="card"><p class="empty" style="margin:0">لما يسجل اللاعبين أسماءهم يبدأ التصويت.</p></div>';return}
+  var mine=myPV(),why=whyNot('pvVote'),dis=why?' disabled':'';
+  el.innerHTML=CATS.map(function(c){
+    var sel=mine&&mine[c.k],counts=pvCounts(c.k);
+    var btns=S.members.map(function(n){
+      return '<button type="button" class="pick'+(sel===n?' on':'')+'" data-act="pv" data-cat="'+c.k+'" data-name="'+esc(n)+'" aria-pressed="'+(sel===n)+'"'+dis+'>'+nameTag(n)+'</button>';
+    }).join('');
+    var res='';
+    if(sel){
+      var names=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]});
+      var tot=names.reduce(function(s,n){return s+counts[n]},0);
+      res=names.map(function(n){return barRow(esc(n),counts[n],tot,counts[n]===counts[names[0]])}).join('');
+    }else{res='<p class="hint" style="margin:6px 0 0">اختر حتى تشوف النتائج.</p>'}
+    return '<section class="card"><h3>'+c.t+'</h3><p class="hint">'+c.d+'</p><div class="picks">'+btns+'</div>'+res+'</section>';
+  }).join('')+(why?'<p class="hint">'+why+'</p>':'');
+};
+function castPV(cat,name){
+  if(!can('pvVote'))return;
+  run(function(){
+    var m=myPV()||{},rec={r:pvRound(),best:m.best||null,worst:m.worst||null,shock:m.shock||null,at:Date.now()};
+    rec[cat]=name;
+    return db.doc('pVotes/'+uid).set(rec);
+  });
+}
+
+/* ---------- court ---------- */
+function caseNo(c){var a=S.cases.slice().sort(function(x,y){return (x.at||0)-(y.at||0)});for(var i=0;i<a.length;i++)if(a[i].id===c.id)return i+1;return 0}
+function cvotes(id){
+  var r={agree:0,disagree:0,mine:null};
+  S.caseVotes.forEach(function(v){if(v.case!==id)return;if(v.v==='agree')r.agree++;else if(v.v==='disagree')r.disagree++;if(v.uid===uid)r.mine=v.v});
+  return r;
+}
+function verdictText(v){return v==='for'?'الحكم لصالح المشتكي':v==='against'?'الحكم لصالح المشتكى عليه':'رُدّت الشكوى'}
+function caseHTML(c){
+  var by=playerById(c.by),byN=by?by.name:'لاعب',ruled=c.status==='ruled',me=myPlayer();
+  var party=!!me&&(c.by===uid||me.name===c.against);
+  var h='<article class="card case"><div class="case-h"><span class="eyebrow" style="margin:0">قضية رقم '+caseNo(c)+'</span><span class="state'+(ruled?' ok':'')+'">'+(ruled?'محسومة':'مفتوحة')+'</span></div>'+
+    '<div class="vs-head" style="font-size:1rem;margin-bottom:8px"><span>'+nameTag(byN)+'</span><b>ضد</b><span>'+nameTag(c.against)+'</span></div>'+
+    '<h3>'+esc(c.title)+'</h3><p class="case-b">'+esc(c.body)+'</p><p class="meta">'+relTime(c.at)+'</p>';
+  if(ruled){
+    h+='<div class="verdict"><p class="eyebrow">قرار القاضي</p><p class="vtxt">'+verdictText(c.verdict)+'</p><p style="margin:0;white-space:pre-wrap;overflow-wrap:anywhere">'+esc(c.ruling||'')+'</p></div>';
+    var cv=cvotes(c.id),tot=cv.agree+cv.disagree,why=party?'أنت طرف بالقضية، ما تصوّت على حكمها.':whyNot('caseVote'),dis=why?' disabled':'';
+    h+='<div class="cvote"><p class="eyebrow">تصويت الاتحاد على الحكم</p><div class="cands"><button type="button" class="cand sm'+(cv.mine==='agree'?' on':'')+'" data-act="cv" data-id="'+esc(c.id)+'" data-v="agree"'+dis+'>أؤيد الحكم</button><button type="button" class="cand sm'+(cv.mine==='disagree'?' on':'')+'" data-act="cv" data-id="'+esc(c.id)+'" data-v="disagree"'+dis+'>أعارض الحكم</button></div>'+
+      barRow('مؤيدين',cv.agree,tot,cv.agree>=cv.disagree&&cv.agree>0)+barRow('معارضين',cv.disagree,tot,cv.disagree>cv.agree)+(why?'<p class="hint" style="margin:10px 0 0">'+why+'</p>':'')+'</div>';
+  }else if(can('rule')){
+    h+='<form class="ruleForm" data-id="'+esc(c.id)+'" autocomplete="off"><label for="rv_'+esc(c.id)+'">الحكم</label><select id="rv_'+esc(c.id)+'"><option value="for">لصالح المشتكي</option><option value="against">لصالح المشتكى عليه</option><option value="dismiss">ردّ الشكوى</option></select><label for="rt_'+esc(c.id)+'">تعليل القرار</label><textarea id="rt_'+esc(c.id)+'" rows="3" maxlength="500" placeholder="اشرح سبب الحكم"></textarea><div class="row" style="margin-top:10px"><button class="btn" type="submit">إصدار الحكم</button></div></form>';
+  }
+  var canDel=can('rule')||(c.by===uid&&!ruled);
+  if(canDel)h+='<div class="row" style="margin-top:10px"><button type="button" class="btn ghost sm" data-act="delcase" data-id="'+esc(c.id)+'">'+(ruled||c.by!==uid?'حذف القضية':'سحب الشكوى')+'</button></div>';
+  return h+'</article>';
+}
+RENDER.court=function(){
+  var cap=S.roles.captain?playerById(S.roles.captain):null;
+  $('#judgeCard').innerHTML='<div class="judge-in">'+(cap?avatar(cap.name,'lg'):'<span class="av lg ph">'+ICON.gavel+'</span>')+'<div><p class="eyebrow">قاضي الاتحاد</p><h2 class="judge-n">'+esc(cap?cap.name:'القائد')+'</h2><p class="hint" style="margin:0">يستلم الشكاوي ويصدر الأحكام، والكل يصوّت على الحكم.</p></div></div>';
+  var n={open:0,ruled:0};S.cases.forEach(function(c){n[c.status==='ruled'?'ruled':'open']++});
+  $('#filters').innerHTML=[['open','مفتوحة'],['ruled','محسومة']].map(function(f){return '<button type="button" data-act="cf" data-f="'+f[0]+'" aria-pressed="'+(caseFilter===f[0])+'">'+f[1]+' <span class="num">'+n[f[0]]+'</span></button>'}).join('');
+  var nb=$('#newCaseBtn');nb.disabled=!can('file');nb.title=whyNot('file');
+  var cf=$('#caseForm');cf.hidden=!(showCaseForm&&can('file'));
+  var el=$('#cases'),cap2=capture(el);
+  var list=S.cases.filter(function(c){return (c.status==='ruled'?'ruled':'open')===caseFilter}).sort(function(a,b){return (b.at||0)-(a.at||0)});
+  el.innerHTML=list.length?list.map(caseHTML).join(''):'<div class="card"><p class="empty" style="margin:0">'+(caseFilter==='open'?'ما اكو شكاوي مفتوحة.':'ما اكو أحكام بعد.')+'</p></div>';
+  restore(cap2);
+};
+function openCaseForm(){
+  if(!can('file')){toast(whyNot('file'));return}
+  var me=myPlayer(),sel=$('#cDef');
+  sel.innerHTML=S.members.filter(function(x){return x!==me.name}).map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('');
+  if(!sel.options.length){toast('ما اكو لاعبين غيرك للشكوى عليهم');return}
+  showCaseForm=true;RENDER.court();
+}
+function submitCase(){
+  if(!can('file'))return;
+  var against=$('#cDef').value,title=$('#cTitle').value.trim(),body=$('#cBody').value.trim();
+  if(!against||!title||body.length<3){toast('اكتب العنوان والتفاصيل');return}
+  run(function(){return db.collection('cases').add({by:uid,against:against,title:title,body:body,status:'open',at:Date.now()}).then(function(){
+    $('#cTitle').value='';$('#cBody').value='';showCaseForm=false;caseFilter='open';RENDER.court();toast('انرفعت الشكوى للقاضي');
+  })});
+}
+function ruleCase(f){
+  if(!can('rule'))return;
+  var id=f.dataset.id,v=$('#rv_'+id).value,t=$('#rt_'+id).value.trim(),c=S.cases.filter(function(x){return x.id===id})[0];
+  if(!c)return;
+  if(t.length<3){toast('اكتب تعليل القرار');return}
+  run(async function(){
+    await db.doc('cases/'+id).update({status:'ruled',verdict:v,ruling:t,rby:uid,rat:Date.now()});
+    await postSys('حكم القاضي بقضية "'+c.title+'": '+verdictText(v)+'.');
+    caseFilter='ruled';toast('انصدر الحكم');
+  });
+}
+function castCV(id,v){
+  var c=S.cases.filter(function(x){return x.id===id})[0],me=myPlayer();
+  if(!c||!me||c.by===uid||me.name===c.against||!can('caseVote'))return;
+  run(function(){return db.doc('caseVotes/'+id+'_'+uid).set({case:id,uid:uid,v:v,at:Date.now()})});
+}
+function delCase(id){
+  run(async function(){
+    await db.doc('cases/'+id).delete();
+    var a=S.caseVotes.filter(function(v){return v.case===id});
+    for(var i=0;i<a.length;i++)await db.doc('caseVotes/'+a[i].id).delete();
+  });
+}
+
+/* ---------- cards ---------- */
+RENDER.cards=function(){
+  var el=$('#cardsBody');
+  if(!S.members.length){el.innerHTML='<div class="card"><p class="empty" style="margin:0">لما يسجل اللاعبين أسماءهم تطلع بطاقاتهم هنا.</p></div>';return}
+  var g=stats();
+  var list=S.members.map(function(n){var s=g(n);return {n:n,s:s,o:ovr(s)}}).sort(function(a,b){return b.o-a.o});
+  el.innerHTML='<div class="cards">'+list.map(function(c){
+    var s=c.s,tier=c.o>=75?'gold':c.o>=60?'silver':'bronze';
+    var rows=[['مباريات',s.p],['فوز',s.w],['أهداف',s.gf],['ألقاب',s.t],['رئاسة',s.pr],['أفضل لاعب',s.best]];
+    return '<article class="fcard '+tier+'"><div class="fh"><span class="ovr num">'+c.o+'</span><span class="ol">تقييم</span></div>'+avatar(c.n,'lg')+
+      '<h3 class="fn">'+esc(c.n)+'</h3>'+(isPres(c.n)?'<div class="fp">'+CROWN+'رئيس الاتحاد</div>':'')+
+      '<div class="fs">'+rows.map(function(r){return '<div><b class="num">'+r[1]+'</b><span>'+r[0]+'</span></div>'}).join('')+'</div></article>';
+  }).join('')+'</div>';
+};
+
+/* ---------- admin ---------- */
+function sw(on,attrs,label,dis){return '<button type="button" class="sw" role="switch" aria-checked="'+on+'" aria-label="'+esc(label)+'" '+attrs+(dis?' disabled':'')+'><i></i></button>'}
+RENDER.admin=function(){
+  var cap=myRole()==='captain';
+  var rows=S.players.slice().sort(function(a,b){return (a.at||0)-(b.at||0)}).map(function(p){
+    var r=roleOfId(p.id),ctl='';
+    if(r==='captain')ctl='<span class="rb cap" style="margin:0">القائد</span>';
+    else ctl='<span class="hint" style="margin:0">مساعد</span>'+sw(r==='assistant','data-act="ast" data-id="'+esc(p.id)+'"','مساعد: '+p.name,!cap);
+    return '<li><span class="who">'+avatar(p.name)+esc(p.name)+'</span><span class="row" style="align-items:center;flex-wrap:nowrap">'+ctl+'</span></li>';
+  }).join('');
+  var pr=FEATS.map(function(f){
+    return '<tr><td>'+f[1]+'</td><td>'+sw(effPerm('player',f[0]),'data-act="perm" data-r="player" data-k="'+f[0]+'"','لاعب: '+f[1],false)+'</td><td>'+sw(effPerm('assistant',f[0]),'data-act="perm" data-r="assistant" data-k="'+f[0]+'"','مساعد: '+f[1],false)+'</td></tr>';
+  }).join('');
+  $('#adminBody').innerHTML=
+    '<div class="card"><h3>الفريق الإداري</h3><p class="hint" style="margin-bottom:0">'+(cap?'اختر المساعدين من القائمة.':'القائد فقط يختار المساعدين.')+'</p><ul class="plist">'+(rows||'<li class="hint">ما اكو لاعبين مسجلين بعد.</li>')+'</ul></div>'+
+    '<div class="card"><h3>الصلاحيات</h3><p class="hint" style="margin-bottom:0">القائد عنده كل الصلاحيات دائماً. التغيير يسري فوراً على الكل.</p><table class="ptab"><thead><tr><th>الصلاحية</th><th>لاعب</th><th>مساعد</th></tr></thead><tbody>'+pr+'</tbody></table><div class="row" style="margin-top:14px"><button type="button" class="btn ghost sm" data-act="permreset">رجّع الافتراضي</button></div></div>';
+};
+function togglePerm(r,k){
+  if(!canManage())return;
+  var np={player:{},assistant:{}};
+  ['player','assistant'].forEach(function(rr){FEATS.forEach(function(f){np[rr][f[0]]=effPerm(rr,f[0])})});
+  np[r][k]=!effPerm(r,k);
+  run(function(){return db.doc('settings/perms').set(np)});
+}
+function toggleAssistant(id){
+  if(myRole()!=='captain')return;
+  var a=(S.roles.assistants||[]).slice(),i=a.indexOf(id);
+  if(i>=0)a.splice(i,1);else a.push(id);
+  run(function(){return db.doc('settings/roles').set({captain:S.roles.captain||uid,assistants:a})});
+}
+
+/* ---------- me ---------- */
+RENDER.me=function(){
+  var el=$('#meBody'),cap=capture(el),me=myPlayer(),h='';
+  if(me){
+    var r=roleOfId(uid),role=myRole();
+    h+='<div class="card"><div class="prof">'+avatar(me.name,'lg')+'<div><p class="prof-n">'+esc(me.name)+'</p><p class="hint" style="margin:0">'+(role==='captain'?'القائد':role==='assistant'?'مساعد':'لاعب')+'</p></div></div>';
+    if(editingName)h+='<form id="nameForm" class="row" style="margin-top:14px" autocomplete="off"><input type="text" id="nameEdit" maxlength="30" value="'+esc(me.name)+'" aria-label="اسمك الجديد"><button class="btn" type="submit">حفظ</button><button type="button" class="btn ghost" data-act="cancelname">إلغاء</button></form>';
+    else h+='<div class="row" style="margin-top:14px"><button type="button" class="btn ghost sm" data-act="editname">تغيير الاسم</button><button type="button" class="btn ghost sm" data-act="photo">تغيير الصورة</button><button type="button" class="btn ghost sm" data-act="logout">تسجيل الخروج</button></div>'+(me.login&&me.login!==me.name?'<p class="hint" style="margin:10px 0 0">اسم الدخول عندك يبقى: '+esc(me.login)+'</p>':'');
+    h+='</div>';
+  }
+  if(me)h+='<form id="pinForm" class="card reg" autocomplete="off"><h3>تغيير الرمز السري</h3><input type="password" id="pinOld" inputmode="numeric" maxlength="6" placeholder="الرمز الحالي" autocomplete="current-password"><input type="password" id="pinNew" inputmode="numeric" maxlength="6" placeholder="الرمز الجديد (6 أرقام)" autocomplete="new-password"><button class="btn" type="submit">غيّر الرمز</button></form>';
+  h+='<div class="card"><h3>ألوان التطبيق</h3><p class="hint" style="margin-bottom:0">يتغير عندك بس، ما يتأثر الباقين.</p><div class="skins">'+
+    SKINS.map(function(s){return '<button type="button" class="skin" data-act="skin" data-k="'+s[0]+'" aria-pressed="'+(skin===s[0])+'"><span class="dots"><i style="background:'+s[2]+'"></i><i style="background:'+s[3]+'"></i></span>'+s[1]+'</button>'}).join('')+'</div></div>';
+  el.innerHTML=h;restore(cap);
+  if(editingName){var ne=$('#nameEdit');if(ne&&document.activeElement!==ne)ne.focus()}
+};
+function saveName(){
+  var me=myPlayer();if(!me)return;
+  var name=$('#nameEdit').value.replace(/\s+/g,' ').trim();if(!name)return;
+  if(S.members.some(function(n){return n===name&&n!==me.name})){toast('هالاسم أخذه شخص ثاني');return}
+  run(function(){return db.doc('players/'+uid).update({name:name}).then(function(){editingName=false;toast('انحفظ الاسم');renderAll()})});
+}
+function resizePhoto(file,size){
+  return new Promise(function(res,rej){
+    var img=new Image(),url=URL.createObjectURL(file);
+    img.onload=function(){
+      var s=Math.min(img.width,img.height),c=document.createElement('canvas');
+      c.width=c.height=size;
+      c.getContext('2d').drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
+      URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',.82));
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);rej(new Error('img'))};
+    img.src=url;
+  });
+}
+function savePhoto(file){
+  if(!registered())return;
+  resizePhoto(file,144).then(function(d){
+    run(function(){return db.doc('players/'+uid).update({photo:d}).then(function(){toast('انحفظت الصورة')})});
+  },function(){toast('ما كدرت أقرأ هالصورة، جرب صورة ثانية')});
+}
+function regPick(file){
+  resizePhoto(file,144).then(function(d){
+    regPhoto=d;var p=$('#regPrev');if(p)p.innerHTML='<img class="av lg" src="'+esc(d)+'" alt="">';
+  },function(){toast('ما كدرت أقرأ هالصورة، جرب صورة ثانية')});
+}
+function register(){
+  if(!uid)return;
+  var name=$('#regName').value.replace(/\s+/g,' ').trim();
+  if(!name){toast('اكتب اسمك');return}
+  if(S.members.indexOf(name)>=0){toast('هالاسم أخذه شخص ثاني');return}
+  run(function(){return db.doc('players/'+uid).set({name:name,login:name,photo:regPhoto||null,at:Date.now()}).then(function(){toast('أهلاً '+name)})});
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-tab],[data-act],[data-g]');if(!t)return;
+  var d=t.dataset;
+  if(d.g){var g=GROUPS.filter(function(x){return x.k===d.g})[0];go(lastLeaf[g.k]&&leavesOf(g).indexOf(lastLeaf[g.k])>=0?lastLeaf[g.k]:g.leaves[0]);return}
+  if(d.tab){go(d.tab);return}
+  switch(d.act){
+    case 'rm':removeMember(d.name);break;
+    case 'rmp':run(function(){return db.doc('players/'+d.id).delete()});break;
+    case 'vote':castVote(+d.i);break;
+    case 'pv':castPV(d.cat,d.name);break;
+    case 'cupsel':cupSel[d.name]=cupSel[d.name]===false;RENDER.cup();break;
+    case 'cupstart':if(S.cup)armed(t,'تأكيد؟ الكأس الحالية تنمسح من الشاشة',startCup);else startCup();break;
+    case 'clr':clearRes(+d.r,+d.i);break;
+    case 'dayclr':if(S.draw&&S.draw.id&&can('cupManage')){var di=d.i;run(function(){return db.doc('dayRes/'+S.draw.id+'_'+di).delete()})}break;
+    case 'seasonstart':startSeason();break;
+    case 'seasonend':armed(t,'تأكيد إنهاء الموسم؟',endSeason);break;
+    case 'like':toggleLike(d.id);break;
+    case 'thread':openThreads[d.id]=!openThreads[d.id];RENDER.news();break;
+    case 'delpost':armed(t,'؟',function(){delPost(d.id)});break;
+    case 'delrep':run(function(){return db.doc('replies/'+d.id).delete()});break;
+    case 'cf':caseFilter=d.f;RENDER.court();break;
+    case 'cv':castCV(d.id,d.v);break;
+    case 'delcase':armed(t,'تأكيد الحذف؟',function(){delCase(d.id)});break;
+    case 'cancelcase':showCaseForm=false;RENDER.court();break;
+    case 'ast':toggleAssistant(d.id);break;
+    case 'perm':togglePerm(d.r,d.k);break;
+    case 'permreset':armed(t,'تأكيد؟',function(){run(function(){return db.doc('settings/perms').set({})})});break;
+    case 'editname':editingName=true;RENDER.me();break;
+    case 'cancelname':editingName=false;RENDER.me();break;
+    case 'photo':$('#photoIn').click();break;
+    case 'regphoto':var rf=$('#regFile');if(rf)rf.click();break;
+    case 'skin':applySkin(d.k);try{localStorage.setItem('fifaSkin',d.k)}catch(x){}RENDER.me();drawWheel();break;
+    case 'logout':doLogout();break;
+    case 'authmode':authMode=d.m;gateState='';renderAll();break;
+    case 'reload':try{location.reload()}catch(x){}break;
+  }
+});
+document.addEventListener('submit',function(e){
+  var f=e.target;e.preventDefault();
+  if(f.id==='addForm'){var i=$('#nameIn');addMember(i.value);i.value='';i.focus()}
+  else if(f.id==='cfgForm')saveConfig();
+  else if(f.id==='regForm')register();
+  else if(f.id==='authForm')doAuth(f);
+  else if(f.id==='pinForm')changePin(f);
+  else if(f.id==='nameForm')saveName();
+  else if(f.id==='caseForm')submitCase();
+  else if(f.classList.contains('resForm')){if(f.dataset.kind==='day')saveDay(f);else saveResult(f)}
+  else if(f.classList.contains('repForm'))sendReply(f);
+  else if(f.classList.contains('ruleForm'))ruleCase(f);
+});
+document.addEventListener('change',function(e){
+  var t=e.target,f=t.files&&t.files[0];
+  if(t.id==='photoIn'){t.value='';if(f)savePhoto(f)}
+  else if(t.id==='regFile'){t.value='';if(f)regPick(f)}
+});
+$('#postBtn').addEventListener('click',newPost);
+$('#postIn').addEventListener('input',updCount);
+$('#newCaseBtn').addEventListener('click',openCaseForm);
+$('#copyBtn').addEventListener('click',copySchedule);
+$('#resetBtn').addEventListener('click',function(e){
+  armed(e.currentTarget,'تأكيد المسح؟',function(){run(function(){return db.doc('draw/state').set({pool:[],matches:[],pending:null,bye:null,at:Date.now()})})});
+});
+$('#pvReset').addEventListener('click',function(e){
+  armed(e.currentTarget,'تأكيد البدء من جديد؟',function(){run(function(){return db.doc('pvote/config').set({round:pvRound()+1,at:Date.now()})}).then(function(){toast('بدأ تصويت جديد')})});
+});
+window.addEventListener('hashchange',function(){showTab(location.hash.slice(1))});
+window.addEventListener('resize',function(){if(tab==='draw')drawWheel()});
+
+/* ---------- boot ---------- */
+buildNav();
+showTab(location.hash.slice(1)||'news');
+renderAll();
+
+function snap(ref,fn){
+  return ref.onSnapshot(function(s){
+    if(!s.metadata.fromCache){loaded=true;if(!sticky)banner('')}
+    fn(s);renderAll();
+  },function(err){console.warn(err);banner('انقطع الاتصال بالبيانات المشتركة. أعد فتح الصفحة.')});
+}
+function docs(q){return q.docs.map(function(d){var o=Object.assign({},d.data());o.id=d.id;return o})}
+function one(s){return s.exists?s.data():null}
+
+function subscribe(){
+  setTimeout(function(){if(!loaded&&!sticky)banner('تعذر الوصول للبيانات حالياً. تأكد من الاتصال.')},10000);
+  snap(db.collection('players'),function(q){S.players=docs(q);plLoaded=true});
+  snap(db.doc('settings/roles'),function(s){S.roles=one(s)||{};rolesLoaded=true});
+  snap(db.doc('settings/perms'),function(s){S.perms=one(s)||{}});
+  snap(db.doc('members/list'),function(s){S.manual=(s.exists&&s.data().names)||[]});
+  snap(db.doc('draw/state'),function(s){S.draw=one(s)});
+  snap(db.doc('election/config'),function(s){S.config=one(s)});
+  snap(db.doc('election/president'),function(s){S.president=one(s)});
+  snap(db.collection('eVotes'),function(q){S.eVotes=docs(q)});
+  snap(db.doc('pvote/config'),function(s){S.pvCfg=one(s)});
+  snap(db.collection('pVotes'),function(q){S.pVotes=docs(q)});
+  snap(db.doc('cup/current'),function(s){S.cup=one(s)});
+  snap(db.collection('cupRes'),function(q){S.cupRes=docs(q)});
+  snap(db.collection('champions'),function(q){S.champs=docs(q)});
+  snap(db.collection('terms'),function(q){S.terms=docs(q)});
+  snap(db.collection('posts'),function(q){S.posts=docs(q)});
+  snap(db.collection('likes'),function(q){S.likes=docs(q)});
+  snap(db.collection('replies'),function(q){S.replies=docs(q)});
+  snap(db.collection('cases'),function(q){S.cases=docs(q)});
+  snap(db.collection('caseVotes'),function(q){S.caseVotes=docs(q)});
+  snap(db.doc('season/current'),function(s){S.season=one(s)});
+  snap(db.collection('seasons'),function(q){S.seasons=docs(q)});
+  snap(db.collection('dayRes'),function(q){S.dayRes=docs(q)});
+}
+(function(){
+  var cfg=window.FIREBASE_CONFIG;
+  if(!window.firebase||!cfg||!cfg.apiKey||/PASTE|YOUR/i.test(cfg.apiKey)){configMissing=true;booted=true;renderAll();return}
+  firebase.initializeApp(cfg);
+  auth=firebase.auth();db=firebase.firestore();
+  try{auth.languageCode='ar'}catch(e){}
+  try{db.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}
+  var subscribed=false;
+  auth.onAuthStateChanged(function(u){
+    booted=true;
+    if(!u){uid=null;renderAll();return}
+    uid=u.uid;meDefault=u.displayName||'';
+    if(!subscribed){subscribed=true;subscribe()}
+    renderAll();
+  });
+})();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
