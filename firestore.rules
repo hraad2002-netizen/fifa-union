@@ -16,7 +16,7 @@ service cloud.firestore {
     // الافتراضي لكل صلاحية (نفس جدول DEF بالتطبيق)
     function defOf(r, k) {
       return r == 'assistant'
-        ? !(k in ['season', 'rule'])
+        ? !(k in ['season', 'rule', 'sanction'])
         : (k in ['elVote', 'pvVote', 'cupReport', 'matchReport', 'post', 'file', 'caseVote']);
     }
     function perm(k) {
@@ -61,7 +61,7 @@ service cloud.firestore {
     match /draw/{id}    { allow read: if signedIn(); allow write: if signedIn() && perm('draw'); }
 
     // ---- انتخابات الرئيس ----
-    match /election/{id} { allow read: if signedIn(); allow write: if signedIn() && perm('elManage'); }
+    match /election/{id} { allow read: if signedIn(); allow write: if signedIn() && (perm('elManage') || (id == 'ousted' && perm('sanction'))); }
     match /terms/{id}    { allow read: if signedIn(); allow write: if signedIn() && perm('elManage'); }
     match /eVotes/{id}   { allow read: if signedIn(); allow write: if signedIn() && id == me() && perm('elVote'); }
 
@@ -99,6 +99,12 @@ service cloud.firestore {
       allow delete: if signedIn() && (resource.data.uid == me() || perm('moderate') || !exists(/databases/$(database)/documents/posts/$(resource.data.post)));
     }
 
+    // ---- عقوبات ومكافآت القاضي ----
+    match /sanctions/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if signedIn() && perm('sanction');
+    }
+
     // ---- قاضي الاتحاد ----
     match /cases/{id} {
       allow read: if signedIn();
@@ -110,6 +116,13 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create, update: if signedIn() && perm('caseVote') && request.resource.data.uid == me() && ownId(id);
       allow delete: if signedIn() && (resource.data.uid == me() || perm('rule') || isCaptain() || !exists(/databases/$(database)/documents/cases/$(resource.data.case)));
+    }
+
+    // ---- رموز الإشعارات: كل لاعب يكتب رمزه فقط، والسيرفر وحده يقرأها ----
+    match /tokens/{id} {
+      allow read: if false;
+      allow create, update: if signedIn() && id == me() && request.resource.data.keys().hasOnly(['token', 'at']) && request.resource.data.token is string;
+      allow delete: if signedIn() && id == me();
     }
   }
 }

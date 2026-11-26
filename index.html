@@ -289,7 +289,26 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
 body{margin:0}
 img{max-width:100%}
 .err{color:var(--bad);min-height:1.2em;margin:0}
+.nb{position:relative}
+.ttl{display:inline-block;font-size:.68rem;font-weight:600;border:1px solid var(--accent);color:var(--accent2);border-radius:999px;padding:0 8px;margin-inline-start:6px;line-height:1.6;white-space:nowrap}
+.hl{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.hl li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;min-width:0}
+.hl li>span{min-width:0;overflow-wrap:anywhere}
+.sg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.sg>div{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;min-width:0}
+.sg b{display:block;font-size:1.25rem;color:var(--accent2);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sg span{font-size:.74rem;color:var(--muted)}
+.vsrow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center}
+.bdg{position:absolute;top:4px;inset-inline-start:calc(50% + 4px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:.7rem;font-style:normal;font-weight:700;line-height:18px;text-align:center}
 .btn.link{background:none;border:0;color:var(--accent2);text-decoration:underline}
+.tiers{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.tier{display:inline-block;font-size:.6rem;font-weight:700;border-radius:999px;padding:0 7px;line-height:1.55;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tier.elite{border-color:var(--accent);color:var(--accent2)}
+.tier.fz{border-color:#5aa9e6;color:#5aa9e6}
+.hl li.san{flex-wrap:wrap;align-items:flex-start}
+.hl li.san.off{opacity:.55}
+.hl li.san>div{min-width:0;flex:1 1 180px}
+.hl li.san .row{flex:0 0 auto;gap:6px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -385,6 +404,7 @@ img{max-width:100%}
 
       <section id="p-court" class="panel" hidden>
         <div id="judgeCard" class="card judge"></div>
+        <div id="sanBox"></div>
         <div class="row between" style="margin-bottom:12px">
           <div id="filters" class="filters"></div>
           <button id="newCaseBtn" type="button" class="btn sm">تقديم شكوى</button>
@@ -408,6 +428,16 @@ img{max-width:100%}
         <div id="cardsBody"></div>
       </section>
 
+      <section id="p-stats" class="panel" hidden>
+        <h2>الإحصائيات والمواجهات</h2>
+        <div id="statsBody"></div>
+      </section>
+
+      <section id="p-hall" class="panel" hidden>
+        <h2>قاعة المشاهير</h2>
+        <div id="hallBody"></div>
+      </section>
+
       <section id="p-admin" class="panel" hidden>
         <h2>الإدارة</h2>
         <div id="adminBody"></div>
@@ -428,6 +458,7 @@ img{max-width:100%}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script>
 (function(){
@@ -441,10 +472,10 @@ var CATS=[
   {k:'shock',t:'صدمك بمستواه',d:'لاعب كان يستاهل أفضل لاعب وصدمك بمستواه'}
 ];
 var SKINS=[['noir','أسود ملكي','#0b0b0d','#d4af37'],['emerald','زمرد','#06100c','#3ddc97'],['royal','أزرق ملكي','#070b17','#5b8cff'],['crimson','عنابي','#0f0709','#e5485e'],['pearl','لؤلؤي','#f6f3ec','#8a6a14']];
-var FEATS=[['draw','القرعة (العجلة والأسماء)'],['elVote','التصويت بانتخابات الرئيس'],['elManage','إعداد الانتخابات وتصفير التصويت'],['pvVote','تصويت أفضل وأفشل لاعب'],['cupManage','إدارة الكأس'],['cupReport','تسجيل نتائج الكأس'],['matchReport','تسجيل نتائج مباريات القرعة'],['season','إدارة الموسم (بدء وإنهاء)'],['post','النشر والرد بالأخبار'],['moderate','حذف منشورات الآخرين'],['file','تقديم شكاوي'],['caseVote','التصويت على أحكام القاضي'],['rule','إصدار أحكام القاضي']];
+var FEATS=[['draw','القرعة (العجلة والأسماء)'],['elVote','التصويت بانتخابات الرئيس'],['elManage','إعداد الانتخابات وتصفير التصويت'],['pvVote','تصويت أفضل وأفشل لاعب'],['cupManage','إدارة الكأس'],['cupReport','تسجيل نتائج الكأس'],['matchReport','تسجيل نتائج مباريات القرعة'],['season','إدارة الموسم (بدء وإنهاء)'],['post','النشر والرد بالأخبار'],['moderate','حذف منشورات الآخرين'],['file','تقديم شكاوي'],['caseVote','التصويت على أحكام القاضي'],['rule','إصدار أحكام القاضي'],['sanction','عقوبات ومكافآت القاضي (خصم، تجميد، سحب أهداف، إسقاط الرئيس)']];
 var DEF={
-  player:{draw:0,elVote:1,elManage:0,pvVote:1,cupManage:0,cupReport:1,matchReport:1,season:0,post:1,moderate:0,file:1,caseVote:1,rule:0},
-  assistant:{draw:1,elVote:1,elManage:1,pvVote:1,cupManage:1,cupReport:1,matchReport:1,season:0,post:1,moderate:1,file:1,caseVote:1,rule:0}
+  player:{draw:0,elVote:1,elManage:0,pvVote:1,cupManage:0,cupReport:1,matchReport:1,season:0,post:1,moderate:0,file:1,caseVote:1,rule:0,sanction:0},
+  assistant:{draw:1,elVote:1,elManage:1,pvVote:1,cupManage:1,cupReport:1,matchReport:1,season:0,post:1,moderate:1,file:1,caseVote:1,rule:0,sanction:0}
 };
 function ic(p){return '<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>'}
 var ICON={
@@ -464,12 +495,12 @@ var GROUPS=[
   {k:'play',t:'المباريات',i:'ball',leaves:['draw','cup','league']},
   {k:'ballot',t:'التصويت',i:'vote',leaves:['election','vote']},
   {k:'court',t:'القاضي',i:'gavel',leaves:['court']},
-  {k:'more',t:'المزيد',i:'menu',leaves:['me','cards','admin']}
+  {k:'more',t:'المزيد',i:'menu',leaves:['me','cards','stats','hall','admin']}
 ];
-var LEAF_T={news:'أخبار الاتحاد',draw:'القرعة',cup:'كأس الخميس',election:'انتخابات الرئيس',vote:'أفضل وأفشل لاعب',court:'قاضي الاتحاد',cards:'بطاقات الاتحاد',league:'دوري الموسم',admin:'الإدارة',me:'ملفي'};
-var LEAF_S={league:'الدوري',draw:'القرعة',cup:'كأس الخميس',election:'انتخابات الرئيس',vote:'تصويت اللاعبين',me:'ملفي',cards:'البطاقات',admin:'الإدارة'};
+var LEAF_T={news:'أخبار الاتحاد',draw:'القرعة',cup:'كأس الخميس',election:'انتخابات الرئيس',vote:'أفضل وأفشل لاعب',court:'قاضي الاتحاد',cards:'بطاقات الاتحاد',stats:'إحصائيات ومواجهات',hall:'قاعة المشاهير',league:'دوري الموسم',admin:'الإدارة',me:'ملفي'};
+var LEAF_S={league:'الدوري',draw:'القرعة',cup:'كأس الخميس',election:'انتخابات الرئيس',vote:'تصويت اللاعبين',me:'ملفي',cards:'البطاقات',stats:'الإحصائيات',hall:'القاعة',admin:'الإدارة'};
 
-var S={members:[],manual:[],players:[],photoBy:{},roles:{},perms:{},draw:null,config:null,president:null,eVotes:[],pvCfg:null,pVotes:[],cup:null,cupRes:[],champs:[],terms:[],posts:[],likes:[],replies:[],cases:[],caseVotes:[],season:null,seasons:[],dayRes:[]};
+var S={sanctions:[],ousted:null,members:[],manual:[],players:[],photoBy:{},roles:{},perms:{},draw:null,config:null,president:null,eVotes:[],pvCfg:null,pVotes:[],cup:null,cupRes:[],champs:[],terms:[],posts:[],likes:[],replies:[],cases:[],caseVotes:[],season:null,seasons:[],dayRes:[]};
 var db=null,auth=null,uid=null,canWrite=true,signing=false,configMissing=false,authMode='login',booted=false,plLoaded=false,rolesLoaded=false,claimed=false;
 var meDefault='',regPhoto='',editingName=false,spinning=false,rot=0,tab='news',loaded=false,sticky='',gateState='',skin='noir';
 var lastLeaf={},openThreads={},caseFilter='open',showCaseForm=false,cupSel={};
@@ -539,6 +570,7 @@ function avatar(n,cls){
   return '<span class="'+c+' ph" style="background:'+colorOf(n)+'" aria-hidden="true">'+esc(Array.from(n)[0]||'?')+'</span>';
 }
 function derive(){
+  try{S.titles=computeTitles()}catch(e){S.titles={}}
   var seen={},out=[];
   S.manual.concat(S.players.map(function(p){return p.name})).forEach(function(n){if(n&&!seen[n]){seen[n]=1;out.push(n)}});
   S.members=out;
@@ -588,11 +620,14 @@ function tally(rid){
   return r;
 }
 function winnerOf(c){var t=tally(c.rid);return t[0]>t[1]?c.c1:t[1]>t[0]?c.c2:null}
-function curPresident(){
-  var st=elState();
-  if(st.k==='done'){var w=winnerOf(st.c);if(w)return w}
-  return S.president&&S.president.name||null;
+function presInfo(){
+  var st=elState(),p=null,rid=null;
+  if(st.k==='done'){var w=winnerOf(st.c);if(w){p=w;rid=st.c.rid}}
+  if(!p&&S.president&&S.president.name){p=S.president.name;rid=S.president.rid}
+  if(p&&S.ousted&&S.ousted.name===p&&S.ousted.rid===rid)p=null;
+  return {n:p,rid:rid};
 }
+function curPresident(){return presInfo().n}
 function isPres(n){var p=curPresident();return !!p&&p===n}
 function nameTag(n){return avatar(n)+esc(n)+(isPres(n)?'<span class="pres-tag">'+CROWN+'رئيس الاتحاد</span>':'')}
 function pvRound(){return (S.pvCfg&&S.pvCfg.round)||0}
@@ -665,22 +700,159 @@ function leagueMatches(from,to){
 }
 function leagueTable(from,to){
   var rows={};
-  function g(n){return rows[n]||(rows[n]={n:n,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,t:0})}
+  function g(n){return rows[n]||(rows[n]={n:n,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,t:0,fz:0})}
   S.members.forEach(function(n){g(n)});
   leagueMatches(from,to).forEach(function(m){
     var A=g(m.a),B=g(m.b);A.p++;B.p++;A.gf+=m.sa;A.ga+=m.sb;B.gf+=m.sb;B.ga+=m.sa;
     if(m.sa>m.sb){A.w++;A.pts+=3;B.l++}else if(m.sb>m.sa){B.w++;B.pts+=3;A.l++}else{A.d++;B.d++;A.pts++;B.pts++}
   });
   S.champs.forEach(function(c){if(c.at>=from&&c.at<=to)g(c.name).t++});
+  S.sanctions.forEach(function(x){
+    if(!x.player||x.at<from||x.at>to||x.status==='lifted'||x.status==='returned'||x.kind==='oust')return;
+    var r=g(x.player);
+    if(x.kind==='deduct')r.pts-=x.pts;
+    else if(x.kind==='bonus')r.pts+=x.pts;
+    else if(x.kind==='goals')r.gf=Math.max(0,r.gf-x.goals);
+    else if(x.kind==='freeze'){r.pts-=x.pts;if(x.status==='active')r.fz+=x.pts}
+  });
   return Object.keys(rows).map(function(k){var r=rows[k];r.gd=r.gf-r.ga;return r}).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.n.localeCompare(b.n,'ar')});
 }
 function tableHTML(rows){
   var top=0;rows.forEach(function(r){if(r.gf>top)top=r.gf});
+  var nr=rows.length,any=rows.some(function(r){return r.p>0}),ne=any?Math.min(4,Math.ceil(nr/2)):0,nj=any?Math.min(4,Math.floor(nr/2)):0;
   return '<div class="tbl-wrap"><table class="lt"><thead><tr><th class="pl">اللاعب</th><th>نقاط</th><th>لعب</th><th>له</th><th>عليه</th><th>فرق</th><th>فاز</th><th>تعادل</th><th>خسر</th><th>كأس</th></tr></thead><tbody>'+
     rows.map(function(r,i){
       var gd=r.gf-r.ga;
-      return '<tr'+(i===0&&r.p>0?' class="first"':'')+'><td class="pl"><span class="muted num">'+(i+1)+'</span> '+avatar(r.n)+'<span class="ln">'+esc(r.n)+'</span>'+(top>0&&r.gf===top?'<span class="star" title="الهداف" aria-label="الهداف">★</span>':'')+'</td><td class="num pts">'+r.pts+'</td><td class="num">'+r.p+'</td><td class="num">'+r.gf+'</td><td class="num">'+r.ga+'</td><td class="num">'+(gd>0?'+':'')+gd+'</td><td class="num">'+r.w+'</td><td class="num">'+r.d+'</td><td class="num">'+r.l+'</td><td class="num">'+r.t+'</td></tr>';
-    }).join('')+'</tbody></table></div>';
+      return '<tr'+(i===0&&r.p>0?' class="first"':'')+'><td class="pl"><span class="muted num">'+(i+1)+'</span> '+avatar(r.n)+'<span class="ln">'+esc(r.n)+'</span>'+(top>0&&r.gf===top?'<span class="star" title="الهداف" aria-label="الهداف">★</span>':'')+(function(){var t=(i<ne?'<span class="tier elite">نخبة</span>':'')+(i>=nr-nj?'<span class="tier">ناشئين</span>':'')+(r.fz>0?'<span class="tier fz">مجمّد '+r.fz+'</span>':'');return t?'<div class="tiers">'+t+'</div>':''})()+'</td><td class="num pts">'+r.pts+'</td><td class="num">'+r.p+'</td><td class="num">'+r.gf+'</td><td class="num">'+r.ga+'</td><td class="num">'+(gd>0?'+':'')+gd+'</td><td class="num">'+r.w+'</td><td class="num">'+r.d+'</td><td class="num">'+r.l+'</td><td class="num">'+r.t+'</td></tr>';
+    }).join('')+'</tbody></table></div>'+(ne||nj?'<p class="hint" style="margin-top:-4px">نخبة: أول '+ne+' مراكز · ناشئين: آخر '+nj+' مراكز.</p>':'');
+}
+/* ---------- stats & head-to-head ---------- */
+var stSel={p:'',a:'',b:''};
+function sgCell(v,l){return '<div><b>'+v+'</b><span>'+l+'</span></div>'}
+RENDER.stats=function(){
+  var el=$('#statsBody');
+  if(!S.members.length){el.innerHTML='<div class="card"><p class="empty" style="margin:0">لما يسجل اللاعبين أسماءهم تطلع الإحصائيات هنا.</p></div>';return}
+  var ms=leagueMatches(0,Infinity),M=S.members;
+  var me=myPlayer();
+  if(M.indexOf(stSel.p)<0)stSel.p=(me&&me.name)||M[0];
+  if(M.indexOf(stSel.a)<0)stSel.a=stSel.p;
+  if(M.indexOf(stSel.b)<0||stSel.b===stSel.a)stSel.b=M.filter(function(n){return n!==stSel.a})[0]||'';
+  function opts(sel){return M.map(function(n){return '<option value="'+esc(n)+'"'+(n===sel?' selected':'')+'>'+esc(n)+'</option>'}).join('')}
+  var p=stSel.p,w=0,d=0,l=0,gf=0,ga=0,n=0;
+  ms.forEach(function(m){
+    if(m.a!==p&&m.b!==p)return;
+    var f=m.a===p?m.sa:m.sb,x=m.a===p?m.sb:m.sa;n++;gf+=f;ga+=x;
+    if(f>x)w++;else if(f<x)l++;else d++;
+  });
+  var cups=S.champs.filter(function(c){return c.name===p}).length;
+  var lg=S.seasons.filter(function(x){var t=x.table&&x.table[0];return t&&t.p>0&&t.n===p}).length;
+  var pres=S.terms.filter(function(t){return t.name===p}).length;
+  var pv=S.pVotes.filter(function(v){return (v.r||0)===pvRound()});
+  function cnt(k){return pv.filter(function(v){return v[k]===p}).length}
+  var h='<div class="card"><h3>ملف اللاعب</h3><select id="stP" aria-label="اللاعب">'+opts(p)+'</select>'+(titlesOf(p).length?'<p style="margin:10px 0 0">'+titleTags(p)+'</p>':'')+
+    '<div class="sg">'+sgCell(cups,'ألقاب الكأس')+sgCell(lg,'ألقاب الدوري')+sgCell(pres,'مرات الرئاسة')+'</div>'+
+    '<div class="sg">'+sgCell(n,'مباريات')+sgCell(w+' / '+d+' / '+l,'فوز / تعادل / خسارة')+sgCell(gf+' - '+ga,'له - عليه')+'</div>'+
+    '<p class="hint" style="margin:12px 0 0">أصوات الجولة الحالية: أفضل لاعب '+cnt('best')+' · أفشل لاعب '+cnt('worst')+' · صدمني بمستواه '+cnt('shock')+'</p></div>';
+  var A=stSel.a,B=stSel.b,hh={a:0,d:0,b:0,ga:0,gb:0},last=[];
+  if(A&&B)ms.forEach(function(m){
+    var sa,sb;
+    if(m.a===A&&m.b===B){sa=m.sa;sb=m.sb}else if(m.a===B&&m.b===A){sa=m.sb;sb=m.sa}else return;
+    hh.ga+=sa;hh.gb+=sb;if(sa>sb)hh.a++;else if(sb>sa)hh.b++;else hh.d++;
+    last.push(m);
+  });
+  h+='<div class="card"><h3>المواجهات المباشرة</h3><div class="vsrow"><select id="stA" aria-label="اللاعب الأول">'+opts(A)+'</select><span class="vs">ضد</span><select id="stB" aria-label="اللاعب الثاني">'+opts(B)+'</select></div>';
+  if(!B)h+='<p class="hint">لازم لاعبين اثنين على الأقل.</p>';
+  else if(!last.length)h+='<p class="empty" style="margin:12px 0 0">ما لعبوا ضد بعض بعد (حسب النتائج المسجلة).</p>';
+  else h+='<div class="sg">'+sgCell(hh.a,'فوز '+esc(A))+sgCell(hh.d,'تعادل')+sgCell(hh.b,'فوز '+esc(B))+'</div><p class="hint" style="margin:12px 0 0">الأهداف: '+esc(A)+' '+hh.ga+' - '+hh.gb+' '+esc(B)+'. آخر المواجهات:</p><ul class="matches">'+last.slice(0,5).map(resultRow).join('')+'</ul>';
+  h+='</div>';
+  el.innerHTML=h;
+};
+/* ---------- auto titles & hall of fame ---------- */
+function chrono(){return leagueMatches(0,Infinity).slice().sort(function(x,y){return x.at-y.at})}
+function playerAgg(ms){
+  var st={};
+  function g(n){return st[n]||(st[n]={p:0,gf:0,ga:0,w:0,cur:0,best:0})}
+  ms.forEach(function(m){
+    var A=g(m.a),B=g(m.b);A.p++;B.p++;A.gf+=m.sa;A.ga+=m.sb;B.gf+=m.sb;B.ga+=m.sa;
+    if(m.sa>m.sb){A.w++;A.cur++;if(A.cur>A.best)A.best=A.cur;B.cur=0}
+    else if(m.sb>m.sa){B.w++;B.cur++;if(B.cur>B.best)B.best=B.cur;A.cur=0}
+    else{A.cur=0;B.cur=0}
+  });
+  return st;
+}
+function trophiesOf(n){
+  var c=S.champs.filter(function(x){return x.name===n}).length;
+  var l=S.seasons.filter(function(x){var t=x.table&&x.table[0];return t&&t.p>0&&t.n===n}).length;
+  return c+l;
+}
+function computeTitles(){
+  var st=playerAgg(chrono()),names=Object.keys(st),T={};
+  function add(n,t){(T[n]=T[n]||[]).push(t)}
+  function pick(val,ok,tag){
+    var best=null;
+    names.forEach(function(n){
+      var s=st[n];if(!ok(s,n))return;var v=val(s,n);
+      if(!best||v>best.v)best={n:n,v:v,tie:false};else if(v===best.v)best.tie=true;
+    });
+    if(best&&!best.tie&&best.v>0)add(best.n,tag);
+  }
+  pick(function(s){return s.gf},function(s){return s.p>=2},'الهداف');
+  pick(function(s){return 1/(1+s.ga/s.p)},function(s){return s.p>=3},'الجدار');
+  pick(function(s){return s.p},function(s){return s.p>=3},'المحارب');
+  pick(function(s){return s.cur},function(s){return s.cur>=3},'ناري');
+  pick(function(s,n){return trophiesOf(n)},function(s,n){return trophiesOf(n)>=1},'الأسطورة');
+  return T;
+}
+function titlesOf(n){return (S.titles&&S.titles[n])||[]}
+function titleTag(n){var t=titlesOf(n);return t.length?'<span class="ttl">'+esc(t[0])+'</span>':''}
+function titleTags(n){return titlesOf(n).map(function(t){return '<span class="ttl">'+esc(t)+'</span>'}).join('')}
+var TITLE_D={'الهداف':'أكثر لاعب سجّل أهداف','الجدار':'أقل أهداف تدخل مرماه بالمباراة (3 مباريات فأكثر)','المحارب':'أكثر لاعب لعب مباريات','ناري':'3 انتصارات متتالية أو أكثر حالياً','الأسطورة':'أكثر ألقاب (كأس + دوري)'};
+function dateAr(at){try{return new Date(at).toLocaleDateString(LOC,{day:'numeric',month:'long',year:'numeric',timeZone:TZ})}catch(e){return ''}}
+RENDER.hall=function(){
+  var el=$('#hallBody'),ms=chrono(),h='';
+  var st=playerAgg(ms),names=Object.keys(st);
+  /* titles now */
+  var tl=Object.keys(TITLE_D).map(function(t){
+    var who=Object.keys(S.titles||{}).filter(function(n){return S.titles[n].indexOf(t)>=0});
+    return who.length?'<li><span><span class="ttl" style="margin:0">'+esc(t)+'</span> <span class="muted">'+esc(TITLE_D[t])+'</span></span><b>'+who.map(esc).join('، ')+'</b></li>':'';
+  }).join('');
+  h+='<div class="card"><h3>الألقاب الحالية</h3><p class="hint" style="margin:0">تنمنح تلقائياً حسب النتائج وتتغير بتغيرها. التعادل بين لاعبين ما يعطي اللقب لأحد.</p><ul class="hl">'+(tl||'<li class="muted">تظهر بعد تسجيل كم مباراة.</li>')+'</ul></div>';
+  /* records */
+  var big=null,most=null;
+  ms.forEach(function(m){
+    var mg=Math.abs(m.sa-m.sb),tot=m.sa+m.sb;
+    if(!big||mg>big.mg)big={m:m,mg:mg};
+    if(!most||tot>most.tot)most={m:m,tot:tot};
+  });
+  var streak=null,gp=null,tr=null;
+  names.forEach(function(n){
+    var s=st[n];
+    if(!streak||s.best>streak.v)streak={n:n,v:s.best};
+    if(!gp||s.p>gp.v)gp={n:n,v:s.p};
+  });
+  S.members.forEach(function(n){var t=trophiesOf(n);if(!tr||t>tr.v)tr={n:n,v:t}});
+  function mt(x){return esc(x.m.a)+' '+x.m.sa+' - '+x.m.sb+' '+esc(x.m.b)}
+  if(ms.length){
+    h+='<div class="card"><h3>الأرقام القياسية</h3><ul class="hl">'+
+      '<li><span>أكبر فوز</span><b>'+(big&&big.mg>0?mt(big):'-')+'</b></li>'+
+      '<li><span>أكثر أهداف بمباراة</span><b>'+(most&&most.tot>0?mt(most):'-')+'</b></li>'+
+      '<li><span>أطول سلسلة انتصارات</span><b>'+(streak&&streak.v>0?esc(streak.n)+' ('+streak.v+')':'-')+'</b></li>'+
+      '<li><span>أكثر مباريات</span><b>'+(gp&&gp.v>0?esc(gp.n)+' ('+gp.v+')':'-')+'</b></li>'+
+      '<li><span>أكثر ألقاب</span><b>'+(tr&&tr.v>0?esc(tr.n)+' ('+tr.v+')':'-')+'</b></li></ul></div>';
+  }else h+='<div class="card"><h3>الأرقام القياسية</h3><p class="empty" style="margin:0">تظهر بعد تسجيل نتائج المباريات.</p></div>';
+  /* honours */
+  var champs=S.champs.slice().sort(function(a,b){return (b.at||0)-(a.at||0)});
+  h+='<div class="card"><h3>أبطال كأس الخميس</h3><ul class="hl">'+(champs.length?champs.map(function(c){return '<li><span>كأس رقم '+esc(c.n||'')+' <span class="muted">'+dateAr(c.at)+'</span></span><b>'+esc(c.name)+'</b></li>'}).join(''):'<li class="muted">ما اكو أبطال بعد.</li>')+'</ul></div>';
+  var seas=S.seasons.slice().sort(function(a,b){return (b.n||0)-(a.n||0)}).filter(function(x){return x.table&&x.table[0]&&x.table[0].p>0});
+  h+='<div class="card"><h3>أبطال الدوري</h3><ul class="hl">'+(seas.length?seas.map(function(x){return '<li><span>الموسم '+esc(x.n)+'</span><b>'+esc(x.table[0].n)+' ('+x.table[0].pts+' نقطة)</b></li>'}).join(''):'<li class="muted">ما انتهى موسم بعد.</li>')+'</ul></div>';
+  var tm=S.terms.slice().sort(function(a,b){return (b.at||0)-(a.at||0)});
+  h+='<div class="card"><h3>رؤساء الاتحاد</h3><ul class="hl">'+(tm.length?tm.map(function(t){return '<li><span class="muted">'+dateAr(t.at)+'</span><b>'+esc(t.name)+'</b></li>'}).join(''):'<li class="muted">ما اكو رئيس بعد.</li>')+'</ul></div>';
+  el.innerHTML=h;
+};
+function seasonSummary(t){
+  if(!t||!t.length)return '';
+  var sc=t.slice().sort(function(a,b){return b.gf-a.gf})[0],ls=t.slice().sort(function(a,b){return b.l-a.l})[0],ch=t[0];
+  return '<div class="sg">'+sgCell(esc(ch.n),'بطل الدوري ('+ch.pts+' نقطة)')+sgCell(esc(sc.n),'الهداف ('+sc.gf+' هدف)')+sgCell(ls.l>0?esc(ls.n):'-','أكثر خسارة'+(ls.l>0?' ('+ls.l+')':''))+'</div>';
 }
 function resultRow(m){
   return '<li class="match"><span class="p">'+nameTag(m.a)+'</span><span class="num" style="font-weight:700;color:var(--accent2)">'+m.sa+' - '+m.sb+'</span><span class="p">'+nameTag(m.b)+'</span><span class="vs">'+m.k+'</span></li>';
@@ -692,6 +864,7 @@ RENDER.league=function(){
     try{d=new Date(as.startedAt).toLocaleDateString(LOC,{day:'numeric',month:'long',timeZone:TZ})}catch(e){}
     h+='<div class="card"><p class="eyebrow">الموسم '+as.n+' جاري</p><p class="hint" style="margin:0">بدأ '+esc(d)+' · '+ms.length+' مباراة. الموسم ما ينتهي إلا لما القائد ينهيه.</p>'+(mg?'<div class="row" style="margin-top:12px"><button type="button" class="btn ghost sm" data-act="seasonend">إنهاء الموسم</button></div>':'')+'</div>';
     h+=tableHTML(leagueTable(as.startedAt,now));
+    h+=seasonSanHTML(as.startedAt,now);
     h+='<p class="hint">فوز 3 نقاط وتعادل نقطة. تنحسب مباريات القرعة اليومية وكأس الخميس، وتعادل الكأس بركلات الترجيح ينحسب تعادل. عمود "كأس" هو عدد ألقاب الكأس بهالموسم.</p>';
     h+='<h2>آخر النتائج</h2>'+(ms.length?'<ul class="matches">'+ms.slice(0,10).map(resultRow).join('')+'</ul>':'<p class="empty">ما اكو نتائج بعد. سجّل نتائج مباريات القرعة أو الكأس.</p>');
   }else{
@@ -701,7 +874,7 @@ RENDER.league=function(){
   if(past.length){
     h+='<h2>المواسم السابقة</h2>'+past.map(function(s){
       var w=s.table&&s.table[0];
-      return '<details class="card"><summary>الموسم '+s.n+(w?' · البطل '+esc(w.n)+' ('+w.pts+' نقطة)':'')+'</summary>'+(s.table&&s.table.length?tableHTML(s.table):'<p class="empty">ما كانت اكو نتائج.</p>')+'</details>';
+      return '<details class="card"><summary>الموسم '+s.n+(w?' · البطل '+esc(w.n)+' ('+w.pts+' نقطة)':'')+'</summary>'+(s.table&&s.table.length?seasonSummary(s.table)+tableHTML(s.table):'<p class="empty">ما كانت اكو نتائج.</p>')+'</details>';
     }).join('');
   }
   $('#leagueBody').innerHTML=h;
@@ -722,7 +895,7 @@ function endSeason(){
   run(async function(){
     await db.doc('seasons/'+s.id).set({n:s.n,start:s.startedAt,end:end,table:rows});
     await db.doc('season/current').set({id:s.id,n:s.n,startedAt:s.startedAt,endedAt:end});
-    await postSys('انتهى الموسم '+s.n+(champ?'. بطل الدوري: '+champ.n+' بـ '+champ.pts+' نقطة.':'.'));
+    await postSys('انتهى الموسم '+s.n+(champ?'. بطل الدوري: '+champ.n+' بـ '+champ.pts+' نقطة. الهداف: '+rows.slice().sort(function(a,b){return b.gf-a.gf})[0].n+'.':'.'));
     toast('انتهى الموسم');
   });
 }
@@ -814,6 +987,52 @@ function doAuth(f){
   }else p=auth.signInWithEmailAndPassword(em,pw);
   p.catch(function(e){signing=false;gateState='';renderAll();setTimeout(function(){authFail(authMsg(e))},0)});
 }
+/* ---------- push notifications (FCM) ---------- */
+var pushBusy=false;
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent||'')}
+function isStandalone(){return !!(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true}
+function pushSupported(){
+  try{return !!(window.VAPID_OK()&&'serviceWorker' in navigator&&'Notification' in window&&window.firebase&&firebase.messaging&&(!firebase.messaging.isSupported||firebase.messaging.isSupported()))}catch(e){return false}
+}
+window.VAPID_OK=function(){var k=window.FCM_VAPID_KEY;return !!k&&!/PASTE/i.test(k)};
+function pushOn(){var on=false;try{on=localStorage.getItem('fifaPush')==='1'}catch(e){}return on&&window.Notification&&Notification.permission==='granted'}
+function pushToken(){
+  return navigator.serviceWorker.ready.then(function(reg){
+    return firebase.messaging().getToken({vapidKey:window.FCM_VAPID_KEY,serviceWorkerRegistration:reg});
+  });
+}
+function enablePush(){
+  if(pushBusy||!uid)return;
+  if(!pushSupported()){toast('هالجهاز أو المتصفح ما يدعم الإشعارات');return}
+  if(isIOS()&&!isStandalone()){toast('بالآيفون ثبّت التطبيق على الشاشة الرئيسية أول');return}
+  pushBusy=true;
+  Notification.requestPermission().then(function(perm){
+    if(perm!=='granted')throw {code:'denied'};
+    return pushToken();
+  }).then(function(tok){
+    if(!tok)throw {code:'notoken'};
+    return db.doc('tokens/'+uid).set({token:tok,at:Date.now()});
+  }).then(function(){
+    try{localStorage.setItem('fifaPush','1')}catch(e){}
+    pushBusy=false;toast('انفعّلت الإشعارات');RENDER.me();
+  }).catch(function(e){
+    pushBusy=false;console.warn(e);
+    toast(e&&e.code==='denied'?'ما انسمح بالإشعارات. فعّلها من إعدادات المتصفح للموقع.':'ما كدرت أفعّل الإشعارات، جرب مرة ثانية');
+    RENDER.me();
+  });
+}
+function disablePush(){
+  if(pushBusy||!uid)return;
+  pushBusy=true;
+  var done=function(){try{localStorage.removeItem('fifaPush')}catch(e){}pushBusy=false;toast('انطفت الإشعارات');RENDER.me()};
+  var del=function(){return db.doc('tokens/'+uid).delete()};
+  var tk=pushSupported()?firebase.messaging().deleteToken().catch(function(){}):Promise.resolve();
+  Promise.resolve(tk).then(del).then(done,done);
+}
+function refreshPush(){
+  if(!pushSupported()||!pushOn()||!uid)return;
+  pushToken().then(function(tok){if(tok)return db.doc('tokens/'+uid).set({token:tok,at:Date.now()})}).catch(function(e){console.warn(e)});
+}
 function doLogout(){if(!auth)return;auth.signOut().then(function(){try{location.reload()}catch(e){}})}
 function changePin(f){
   var o=$('#pinOld').value.trim(),n=$('#pinNew').value.trim(),u=auth&&auth.currentUser;
@@ -829,6 +1048,15 @@ function leavesOf(g){return g.leaves.filter(function(l){return l!=='admin'||canM
 function buildNav(){
   $('#navIn').innerHTML=GROUPS.map(function(g){return '<button type="button" class="nb" data-g="'+g.k+'" data-gk="'+g.k+'">'+ICON[g.i]+'<span>'+g.t+'</span></button>'}).join('');
 }
+function newsSeen(){var v=0;try{v=+localStorage.getItem('fifaNewsSeen')||0}catch(e){}return v}
+function markNewsSeen(){var m=Date.now();S.posts.forEach(function(p){if(p.at>m)m=p.at});try{localStorage.setItem('fifaNewsSeen',String(m))}catch(e){}}
+function updBadge(){
+  if(!newsSeen())markNewsSeen();
+  var seen=newsSeen(),n=tab==='news'?0:S.posts.filter(function(p){return p.at>seen&&p.uid!==uid}).length;
+  var b=document.querySelector('.nb[data-gk="news"]');
+  if(b){var o=b.querySelector('.bdg');if(n>0){if(!o){o=document.createElement('i');o.className='bdg';b.appendChild(o)}o.textContent=n>99?'99+':String(n)}else if(o)o.remove()}
+  try{if(navigator.setAppBadge){if(n>0)navigator.setAppBadge(n);else navigator.clearAppBadge()}}catch(e){}
+}
 function renderHeader(){
   var p=curPresident(),el=$('#pres');
   if(p){el.innerHTML=CROWN+'رئيس الاتحاد: '+esc(p);el.hidden=false}else el.hidden=true;
@@ -836,6 +1064,8 @@ function renderHeader(){
   $('#meBtn').innerHTML=me?avatar(me.name):'<span class="muted">·</span>';
   $('#pageT').textContent=LEAF_T[tab]||'';
   var g=groupOf(tab);
+  if(tab==='news')markNewsSeen();
+  updBadge();
   document.querySelectorAll('.nb').forEach(function(b){if(b.dataset.gk===g.k)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   var ls=leavesOf(g),seg=$('#seg');
   if(ls.length>1){
@@ -870,7 +1100,7 @@ function postHTML(p,lc,liked,reps){
   var canDel=(!!p.uid&&p.uid===uid)||can('moderate');
   var open=!!openThreads[p.id],lk=(!registered()||!canWrite)?' disabled':'';
   return '<article class="post"><div class="pav">'+av+'</div><div class="pb"><div class="pt"><b class="pn">'+esc(name)+'</b>'+
-    (p.sys?'<span class="rb cap">رسمي</span>':roleBadge(p.uid)+(isPres(name)?'<span class="pres-tag">'+CROWN+'رئيس</span>':''))+
+    (p.sys?'<span class="rb cap">رسمي</span>':roleBadge(p.uid)+(isPres(name)?'<span class="pres-tag">'+CROWN+'رئيس</span>':'')+titleTag(name))+
     '<span class="pa">· '+relTime(p.at)+'</span>'+(canDel?'<button type="button" class="ico" data-act="delpost" data-id="'+esc(p.id)+'" aria-label="حذف المنشور">'+ICON.trash+'</button>':'')+
     '</div><p class="px">'+esc(p.text)+'</p><div class="pact"><button type="button" class="act" data-act="thread" data-id="'+esc(p.id)+'" aria-label="الردود">'+ICON.reply+'<span class="num">'+reps.length+'</span></button>'+
     '<button type="button" class="act'+(liked?' on':'')+'" data-act="like" data-id="'+esc(p.id)+'" aria-pressed="'+liked+'" aria-label="إعجاب"'+lk+'>'+ICON.heart+'<span class="num">'+lc+'</span></button></div>'+
@@ -1222,6 +1452,109 @@ function castPV(cat,name){
   });
 }
 
+/* ---------- judge powers: sanctions, freezes, bonuses, ousting ---------- */
+function sanText(x){
+  var k=x.kind,p=esc(x.player);
+  if(k==='deduct')return 'خصم '+x.pts+' نقطة من '+p;
+  if(k==='freeze')return 'تجميد '+x.pts+' نقطة من '+p;
+  if(k==='bonus')return 'مكافأة '+p+' بـ '+x.pts+' نقطة';
+  if(k==='goals')return 'سحب '+x.goals+' هدف من '+p;
+  if(k==='oust')return 'إسقاط رئيس الاتحاد '+p;
+  return '';
+}
+function sanState(x){
+  if(x.status==='lifted')return 'مُلغى';
+  if(x.kind==='freeze')return x.status==='active'?'مجمّدة لحين الحسم':x.status==='withdrawn'?'انسحبت نهائياً':x.status==='returned'?'رجعت':'';
+  return '';
+}
+function sanItem(x,acts){
+  var c=x.caseId?S.cases.filter(function(k){return k.id===x.caseId})[0]:null,st=sanState(x),id=esc(x.id);
+  var h='<li class="san'+(x.status==='lifted'?' off':'')+'"><div><b>'+sanText(x)+'</b>'+(st?' <span class="tier'+(x.kind==='freeze'&&x.status==='active'?' fz':'')+'">'+st+'</span>':'')+
+    '<p class="meta" style="margin:3px 0 0">'+esc(x.reason||'')+(c?' · قضية "'+esc(c.title)+'"':'')+' · '+relTime(x.at)+'</p></div>';
+  if(acts&&x.status==='active'){
+    if(x.kind==='freeze')h+='<div class="row"><button type="button" class="btn ghost sm" data-act="sanwd" data-id="'+id+'">سحبها نهائياً</button><button type="button" class="btn ghost sm" data-act="sanrt" data-id="'+id+'">إرجاعها</button></div>';
+    else if(x.kind!=='oust')h+='<div class="row"><button type="button" class="btn ghost sm" data-act="sanlift" data-id="'+id+'">إلغاء القرار</button></div>';
+  }
+  return h+'</li>';
+}
+function seasonSanHTML(from,to){
+  var a=S.sanctions.filter(function(x){return x.kind!=='oust'&&x.at>=from&&x.at<=to}).sort(function(x,y){return (y.at||0)-(x.at||0)});
+  if(!a.length)return '';
+  return '<details class="card"><summary>قرارات القاضي بالموسم ('+a.length+')</summary><ul class="hl">'+a.map(function(x){return sanItem(x,false)}).join('')+'</ul></details>';
+}
+function caseSanHTML(c){
+  var a=S.sanctions.filter(function(x){return x.caseId===c.id&&x.kind==='freeze'&&x.status==='active'});
+  if(!a.length)return '';
+  return '<p class="eyebrow" style="margin:12px 0 0">نقاط مجمدة لحين الحسم</p><ul class="hl">'+a.map(function(x){return sanItem(x,can('sanction'))}).join('')+'</ul>';
+}
+function sanToggle(){
+  var k=$('#sKind');if(!k)return;var v=k.value,o=v==='oust';
+  $('#sPlW').hidden=o;$('#sAmtW').hidden=o;$('#sCaseW').hidden=!(v==='freeze'||v==='deduct');$('#sOustW').hidden=!o;
+  $('#sAmtL').textContent=v==='goals'?'عدد الأهداف':'عدد النقاط';
+}
+function renderSan(){
+  var el=$('#sanBox');if(!el)return;
+  var cap=capture(el),h='';
+  if(can('sanction')){
+    var pr=curPresident(),ops=S.members.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join('');
+    var cs=S.cases.filter(function(c){return c.status!=='ruled'}).map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.title)+'</option>'}).join('');
+    h+='<form id="sanForm" class="card" autocomplete="off"><h3>صلاحيات القاضي</h3><p class="hint">كل قرار ينزل تلقائياً بأخبار الاتحاد.</p>'+
+      '<label for="sKind">نوع القرار</label><select id="sKind"><option value="deduct">خصم نقاط</option><option value="freeze">تجميد نقاط لحين الحسم</option><option value="bonus">مكافأة نقاط</option><option value="goals">سحب أهداف</option><option value="oust">إسقاط رئيس الاتحاد</option></select>'+
+      '<div id="sPlW"><label for="sPlayer">اللاعب</label><select id="sPlayer">'+ops+'</select></div>'+
+      '<div id="sAmtW"><label for="sAmt" id="sAmtL">عدد النقاط</label><input type="number" id="sAmt" min="1" max="99" inputmode="numeric" value="1"></div>'+
+      '<div id="sCaseW"><label for="sCase">ربط بقضية (اختياري)</label><select id="sCase"><option value="">بدون</option>'+cs+'</select></div>'+
+      '<div id="sOustW"><p class="hint">'+(pr?'الرئيس الحالي: <b>'+esc(pr)+'</b>. الإسقاط يلغي رئاسته لين تصير انتخابات جديدة.':'ما اكو رئيس حالياً.')+'</p></div>'+
+      '<label for="sWhy">السبب</label><input type="text" id="sWhy" maxlength="200" placeholder="اكتب سبب القرار"><div class="row" style="margin-top:10px"><button class="btn" type="submit">إصدار القرار</button></div></form>';
+  }
+  var list=S.sanctions.slice().sort(function(a,b){return (b.at||0)-(a.at||0)}).slice(0,20);
+  h+='<div class="card"><h3>سجل قرارات القاضي</h3>'+(list.length?'<ul class="hl">'+list.map(function(x){return sanItem(x,can('sanction'))}).join('')+'</ul>':'<p class="empty" style="margin:0">ما صدرت قرارات بعد.</p>')+'</div>';
+  el.innerHTML=h;restore(cap);sanToggle();
+}
+function submitSan(){
+  if(!can('sanction'))return;
+  var k=$('#sKind').value,why=$('#sWhy').value.trim();
+  if(why.length<3){toast('اكتب سبب القرار');return}
+  if(k==='oust'){
+    var pi=presInfo();
+    if(!pi.n){toast('ما اكو رئيس حالياً');return}
+    run(async function(){
+      await db.doc('election/ousted').set({name:pi.n,rid:pi.rid||'',at:Date.now(),reason:why,by:uid});
+      await db.collection('sanctions').add({kind:'oust',player:pi.n,reason:why,status:'active',by:uid,at:Date.now()});
+      await postSys('قرار القاضي: إسقاط رئيس الاتحاد '+pi.n+'. السبب: '+why);
+      $('#sWhy').value='';toast('انسقط الرئيس');
+    });
+    return;
+  }
+  var pl=$('#sPlayer').value,amt=parseInt($('#sAmt').value,10),cid=(k==='freeze'||k==='deduct')?($('#sCase').value||''):'';
+  if(!pl){toast('اختر اللاعب');return}
+  if(!(amt>0)){toast('اكتب رقم أكبر من صفر');return}
+  var c=cid?S.cases.filter(function(x){return x.id===cid})[0]:null,doc={kind:k,player:pl,reason:why,status:'active',by:uid,at:Date.now()};
+  if(k==='goals')doc.goals=amt;else doc.pts=amt;
+  if(cid)doc.caseId=cid;
+  var tx={deduct:'خصم '+amt+' نقطة من '+pl,freeze:'تجميد '+amt+' نقطة من '+pl+' لحين الحسم'+(c?' بقضية "'+c.title+'"':''),bonus:'مكافأة '+pl+' بـ '+amt+' نقطة',goals:'سحب '+amt+' هدف من '+pl}[k];
+  run(async function(){
+    await db.collection('sanctions').add(doc);
+    await postSys('قرار القاضي: '+tx+'. السبب: '+why);
+    $('#sWhy').value='';toast('انسجّل القرار');
+  });
+}
+function resolveFreeze(id,how){
+  var x=S.sanctions.filter(function(k){return k.id===id})[0];
+  if(!x||x.kind!=='freeze'||x.status!=='active'||!can('sanction'))return;
+  run(async function(){
+    await db.doc('sanctions/'+id).update({status:how,resolvedAt:Date.now()});
+    await postSys('قرار القاضي: '+(how==='withdrawn'?'سحب '+x.pts+' نقطة مجمدة من '+x.player+' نهائياً':'إرجاع '+x.pts+' نقطة مجمدة إلى '+x.player)+'.');
+  });
+}
+function liftSan(id){
+  var x=S.sanctions.filter(function(k){return k.id===id})[0];
+  if(!x||x.status!=='active'||x.kind==='oust'||!can('sanction'))return;
+  run(async function(){
+    await db.doc('sanctions/'+id).update({status:'lifted',resolvedAt:Date.now()});
+    await postSys('قرار القاضي: إلغاء القرار ('+sanText(x).replace(/<[^>]*>/g,'')+').');
+  });
+}
+
 /* ---------- court ---------- */
 function caseNo(c){var a=S.cases.slice().sort(function(x,y){return (x.at||0)-(y.at||0)});for(var i=0;i<a.length;i++)if(a[i].id===c.id)return i+1;return 0}
 function cvotes(id){
@@ -1235,7 +1568,7 @@ function caseHTML(c){
   var party=!!me&&(c.by===uid||me.name===c.against);
   var h='<article class="card case"><div class="case-h"><span class="eyebrow" style="margin:0">قضية رقم '+caseNo(c)+'</span><span class="state'+(ruled?' ok':'')+'">'+(ruled?'محسومة':'مفتوحة')+'</span></div>'+
     '<div class="vs-head" style="font-size:1rem;margin-bottom:8px"><span>'+nameTag(byN)+'</span><b>ضد</b><span>'+nameTag(c.against)+'</span></div>'+
-    '<h3>'+esc(c.title)+'</h3><p class="case-b">'+esc(c.body)+'</p><p class="meta">'+relTime(c.at)+'</p>';
+    '<h3>'+esc(c.title)+'</h3><p class="case-b">'+esc(c.body)+'</p><p class="meta">'+relTime(c.at)+'</p>'+caseSanHTML(c);
   if(ruled){
     h+='<div class="verdict"><p class="eyebrow">قرار القاضي</p><p class="vtxt">'+verdictText(c.verdict)+'</p><p style="margin:0;white-space:pre-wrap;overflow-wrap:anywhere">'+esc(c.ruling||'')+'</p></div>';
     var cv=cvotes(c.id),tot=cv.agree+cv.disagree,why=party?'أنت طرف بالقضية، ما تصوّت على حكمها.':whyNot('caseVote'),dis=why?' disabled':'';
@@ -1259,6 +1592,7 @@ RENDER.court=function(){
   var list=S.cases.filter(function(c){return (c.status==='ruled'?'ruled':'open')===caseFilter}).sort(function(a,b){return (b.at||0)-(a.at||0)});
   el.innerHTML=list.length?list.map(caseHTML).join(''):'<div class="card"><p class="empty" style="margin:0">'+(caseFilter==='open'?'ما اكو شكاوي مفتوحة.':'ما اكو أحكام بعد.')+'</p></div>';
   restore(cap2);
+  renderSan();
 };
 function openCaseForm(){
   if(!can('file')){toast(whyNot('file'));return}
@@ -1355,6 +1689,15 @@ RENDER.me=function(){
     else h+='<div class="row" style="margin-top:14px"><button type="button" class="btn ghost sm" data-act="editname">تغيير الاسم</button><button type="button" class="btn ghost sm" data-act="photo">تغيير الصورة</button><button type="button" class="btn ghost sm" data-act="logout">تسجيل الخروج</button></div>'+(me.login&&me.login!==me.name?'<p class="hint" style="margin:10px 0 0">اسم الدخول عندك يبقى: '+esc(me.login)+'</p>':'');
     h+='</div>';
   }
+  if(me){
+    var ps=pushSupported(),on=pushOn(),pn='';
+    if(!window.VAPID_OK())pn='الإشعارات تحتاج إعداد مفتاح VAPID (راجع ملف PUSH-SETUP).';
+    else if(!ps)pn='هالمتصفح ما يدعم الإشعارات.';
+    else if(isIOS()&&!isStandalone())pn='بالآيفون ثبّت التطبيق على الشاشة الرئيسية (مشاركة ← Add to Home Screen) وافتحه منها، وبعدين فعّل الإشعارات.';
+    else if(typeof Notification!=='undefined'&&Notification.permission==='denied')pn='الإشعارات ممنوعة لهالموقع. فعّلها من إعدادات المتصفح.';
+    else pn=on?'الإشعارات شغالة على هالجهاز: نتائج، رئيس جديد، أحكام وشكاوي.':'فعّلها حتى توصلك النتائج والأحكام والانتخابات وهذا التطبيق مسكّر. تصل بتأخير دقائق.';
+    h+='<div class="card"><h3>الإشعارات</h3><p class="hint">'+pn+'</p>'+(ps&&!(isIOS()&&!isStandalone())?'<div class="row"><button type="button" class="btn'+(on?' ghost':'')+'" data-act="'+(on?'pushoff':'pushon')+'"'+(pushBusy?' disabled':'')+'>'+(on?'أوقف الإشعارات':'فعّل الإشعارات')+'</button></div>':'')+'</div>';
+  }
   if(me)h+='<form id="pinForm" class="card reg" autocomplete="off"><h3>تغيير الرمز السري</h3><input type="password" id="pinOld" inputmode="numeric" maxlength="6" placeholder="الرمز الحالي" autocomplete="current-password"><input type="password" id="pinNew" inputmode="numeric" maxlength="6" placeholder="الرمز الجديد (6 أرقام)" autocomplete="new-password"><button class="btn" type="submit">غيّر الرمز</button></form>';
   h+='<div class="card"><h3>ألوان التطبيق</h3><p class="hint" style="margin-bottom:0">يتغير عندك بس، ما يتأثر الباقين.</p><div class="skins">'+
     SKINS.map(function(s){return '<button type="button" class="skin" data-act="skin" data-k="'+s[0]+'" aria-pressed="'+(skin===s[0])+'"><span class="dots"><i style="background:'+s[2]+'"></i><i style="background:'+s[3]+'"></i></span>'+s[1]+'</button>'}).join('')+'</div></div>';
@@ -1422,6 +1765,9 @@ document.addEventListener('click',function(e){
     case 'delrep':run(function(){return db.doc('replies/'+d.id).delete()});break;
     case 'cf':caseFilter=d.f;RENDER.court();break;
     case 'cv':castCV(d.id,d.v);break;
+    case 'sanwd':armed(t,'تأكيد السحب النهائي؟',function(){resolveFreeze(d.id,'withdrawn')});break;
+    case 'sanrt':resolveFreeze(d.id,'returned');break;
+    case 'sanlift':armed(t,'تأكيد الإلغاء؟',function(){liftSan(d.id)});break;
     case 'delcase':armed(t,'تأكيد الحذف؟',function(){delCase(d.id)});break;
     case 'cancelcase':showCaseForm=false;RENDER.court();break;
     case 'ast':toggleAssistant(d.id);break;
@@ -1432,6 +1778,8 @@ document.addEventListener('click',function(e){
     case 'photo':$('#photoIn').click();break;
     case 'regphoto':var rf=$('#regFile');if(rf)rf.click();break;
     case 'skin':applySkin(d.k);try{localStorage.setItem('fifaSkin',d.k)}catch(x){}RENDER.me();drawWheel();break;
+    case 'pushon':enablePush();break;
+    case 'pushoff':disablePush();break;
     case 'logout':doLogout();break;
     case 'authmode':authMode=d.m;gateState='';renderAll();break;
     case 'reload':try{location.reload()}catch(x){}break;
@@ -1446,13 +1794,18 @@ document.addEventListener('submit',function(e){
   else if(f.id==='pinForm')changePin(f);
   else if(f.id==='nameForm')saveName();
   else if(f.id==='caseForm')submitCase();
+  else if(f.id==='sanForm')submitSan();
   else if(f.classList.contains('resForm')){if(f.dataset.kind==='day')saveDay(f);else saveResult(f)}
   else if(f.classList.contains('repForm'))sendReply(f);
   else if(f.classList.contains('ruleForm'))ruleCase(f);
 });
 document.addEventListener('change',function(e){
   var t=e.target,f=t.files&&t.files[0];
-  if(t.id==='photoIn'){t.value='';if(f)savePhoto(f)}
+  if(t.id==='stP'){stSel.p=t.value;RENDER.stats()}
+  else if(t.id==='stA'){stSel.a=t.value;RENDER.stats()}
+  else if(t.id==='stB'){stSel.b=t.value;RENDER.stats()}
+  else if(t.id==='sKind'){sanToggle()}
+  else if(t.id==='photoIn'){t.value='';if(f)savePhoto(f)}
   else if(t.id==='regFile'){t.value='';if(f)regPick(f)}
 });
 $('#postBtn').addEventListener('click',newPost);
@@ -1506,6 +1859,8 @@ function subscribe(){
   snap(db.doc('season/current'),function(s){S.season=one(s)});
   snap(db.collection('seasons'),function(q){S.seasons=docs(q)});
   snap(db.collection('dayRes'),function(q){S.dayRes=docs(q)});
+  snap(db.collection('sanctions'),function(q){S.sanctions=docs(q)});
+  snap(db.doc('election/ousted'),function(s){S.ousted=one(s)});
 }
 (function(){
   var cfg=window.FIREBASE_CONFIG;
@@ -1519,7 +1874,7 @@ function subscribe(){
     booted=true;
     if(!u){uid=null;renderAll();return}
     uid=u.uid;meDefault=u.displayName||'';
-    if(!subscribed){subscribed=true;subscribe()}
+    if(!subscribed){subscribed=true;subscribe();refreshPush()}
     renderAll();
   });
 })();
